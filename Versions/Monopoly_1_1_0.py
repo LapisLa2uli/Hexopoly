@@ -13,7 +13,7 @@ Version Updates:
 """
 
 import pygame, sys, numpy, random, math, time, os
-
+os.chdir('D:\\stuff\\python\\Monopoly')
 SCREEN_W, SCREEN_H = 1500, 900
 
 

@@ -1,5 +1,5 @@
 **Change log**
 
--   **Version 1.0.x:** create basic game board and labels
+-   **Feb-Apr 2025:** create basic game board and labels in **versions 1.0.x** **(DEPRECATED)**
 
--   **Version 1.1.0:** Reorganizes data files into multiple folders
+-   **Apr 21, 2025:** Reorganizes data files into multiple folders, created v1.1.0 for compatibility
