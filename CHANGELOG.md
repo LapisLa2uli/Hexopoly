@@ -14,6 +14,8 @@
 
 -   Added `Utils\README.md`
 
+-   Added `.gitignore`
+
 **Apr 21, 2025**
 
 -   Reorganizes data files into multiple folders, created v1.1.0 for compatibility
