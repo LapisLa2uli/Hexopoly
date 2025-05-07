@@ -2,7 +2,11 @@
 
 Hexopoly is a game inspired by Monopoly, increasing in volatility and possibilities!
 
-# Files
+## Idea
+
+Hexopoly features a hexagonal boards, where players' movement are determined by 2 dice: 1 determines moving distance and another determines moving directions
+
+## Files
 
 `OldVersions`: Contains outdated versions
 

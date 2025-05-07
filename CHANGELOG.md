@@ -1,5 +1,9 @@
 # **Change log**
 
+**May 7, 2025**
+
+-   edited `README.md`, made repository public and added branch ruleset
+
 **Apr 22, 2025**
 
 -   Repurposed `Version` folder to `OldVersion`, moved newest version (v1.1.0) to outside of folder
