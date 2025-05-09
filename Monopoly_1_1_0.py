@@ -33,43 +33,37 @@ class CLS_Cell(object):
         )
 
     def draw(self, scr):
+        outerPoints = (
+            (self.x, self.y + self.cSize),
+            (self.x - self.cSize * 3**0.5 // 2, self.y + self.cSize // 2),
+            (self.x - self.cSize * 3**0.5 // 2, self.y - self.cSize // 2),
+            (self.x, self.y - self.cSize),
+            (self.x + self.cSize * 3**0.5 // 2, self.y - self.cSize // 2),
+            (self.x + self.cSize * 3**0.5 // 2, self.y + self.cSize // 2),
+        )
+        getInner = lambda w: (
+            (self.x, self.y + self.cSize - w),
+            (
+                self.x - self.cSize * 3**0.5 // 2 + w,
+                self.y + self.cSize // 2 - 2,
+            ),
+            (
+                self.x - self.cSize * 3**0.5 // 2 + w,
+                self.y - self.cSize // 2 + 2,
+            ),
+            (self.x, self.y - self.cSize + 4),
+            (
+                self.x + self.cSize * 3**0.5 // 2 - w,
+                self.y - self.cSize // 2 + 2,
+            ),
+            (
+                self.x + self.cSize * 3**0.5 // 2 - w,
+                self.y + self.cSize // 2 - 2,
+            ),
+        )
         if self.cellType == "country":
-            pygame.draw.polygon(
-                scr,
-                self.cColor,
-                (
-                    (self.x, self.y + self.cSize),
-                    (self.x - self.cSize * 3**0.5 // 2, self.y + self.cSize // 2),
-                    (self.x - self.cSize * 3**0.5 // 2, self.y - self.cSize // 2),
-                    (self.x, self.y - self.cSize),
-                    (self.x + self.cSize * 3**0.5 // 2, self.y - self.cSize // 2),
-                    (self.x + self.cSize * 3**0.5 // 2, self.y + self.cSize // 2),
-                ),
-            )
-            pygame.draw.polygon(
-                scr,
-                (40, 5, 77),
-                (
-                    (self.x, self.y + self.cSize - 4),
-                    (
-                        self.x - self.cSize * 3**0.5 // 2 + 4,
-                        self.y + self.cSize // 2 - 2,
-                    ),
-                    (
-                        self.x - self.cSize * 3**0.5 // 2 + 4,
-                        self.y - self.cSize // 2 + 2,
-                    ),
-                    (self.x, self.y - self.cSize + 4),
-                    (
-                        self.x + self.cSize * 3**0.5 // 2 - 4,
-                        self.y - self.cSize // 2 + 2,
-                    ),
-                    (
-                        self.x + self.cSize * 3**0.5 // 2 - 4,
-                        self.y + self.cSize // 2 - 2,
-                    ),
-                ),
-            )
+            pygame.draw.polygon(scr, self.cColor, outerPoints)
+            pygame.draw.polygon(scr, (40, 5, 77), getInner(4))
             scr.blit(
                 self.font.render(self.name, True, self.cColor),
                 (self.x - self.font.size(self.name)[0] // 2, self.y),
@@ -82,42 +76,8 @@ class CLS_Cell(object):
                 ),
             )
         elif self.cellType == "start":
-            pygame.draw.polygon(
-                scr,
-                (67, 125, 85),
-                (
-                    (self.x, self.y + self.cSize),
-                    (self.x - self.cSize * 3**0.5 // 2, self.y + self.cSize // 2),
-                    (self.x - self.cSize * 3**0.5 // 2, self.y - self.cSize // 2),
-                    (self.x, self.y - self.cSize),
-                    (self.x + self.cSize * 3**0.5 // 2, self.y - self.cSize // 2),
-                    (self.x + self.cSize * 3**0.5 // 2, self.y + self.cSize // 2),
-                ),
-            )
-            pygame.draw.polygon(
-                scr,
-                (103, 150, 111),
-                (
-                    (self.x, self.y + self.cSize - 2),
-                    (
-                        self.x - self.cSize * 3**0.5 // 2 + 2,
-                        self.y + self.cSize // 2 - 1,
-                    ),
-                    (
-                        self.x - self.cSize * 3**0.5 // 2 + 2,
-                        self.y - self.cSize // 2 + 1,
-                    ),
-                    (self.x, self.y - self.cSize + 2),
-                    (
-                        self.x + self.cSize * 3**0.5 // 2 - 2,
-                        self.y - self.cSize // 2 + 1,
-                    ),
-                    (
-                        self.x + self.cSize * 3**0.5 // 2 - 2,
-                        self.y + self.cSize // 2 - 1,
-                    ),
-                ),
-            )
+            pygame.draw.polygon(scr, (67, 125, 85), outerPoints)
+            pygame.draw.polygon(scr, (103, 150, 111), getInner(2))
             scr.blit(
                 self.font2.render("START", True, (255, 255, 255)),
                 (
@@ -126,42 +86,8 @@ class CLS_Cell(object):
                 ),
             )
         elif self.cellType == "jail":
-            pygame.draw.polygon(
-                scr,
-                (30, 30, 30),
-                (
-                    (self.x, self.y + self.cSize),
-                    (self.x - self.cSize * 3**0.5 // 2, self.y + self.cSize // 2),
-                    (self.x - self.cSize * 3**0.5 // 2, self.y - self.cSize // 2),
-                    (self.x, self.y - self.cSize),
-                    (self.x + self.cSize * 3**0.5 // 2, self.y - self.cSize // 2),
-                    (self.x + self.cSize * 3**0.5 // 2, self.y + self.cSize // 2),
-                ),
-            )
-            pygame.draw.polygon(
-                scr,
-                (170, 170, 170),
-                (
-                    (self.x, self.y + self.cSize - 2),
-                    (
-                        self.x - self.cSize * 3**0.5 // 2 + 2,
-                        self.y + self.cSize // 2 - 1,
-                    ),
-                    (
-                        self.x - self.cSize * 3**0.5 // 2 + 2,
-                        self.y - self.cSize // 2 + 1,
-                    ),
-                    (self.x, self.y - self.cSize + 2),
-                    (
-                        self.x + self.cSize * 3**0.5 // 2 - 2,
-                        self.y - self.cSize // 2 + 1,
-                    ),
-                    (
-                        self.x + self.cSize * 3**0.5 // 2 - 2,
-                        self.y + self.cSize // 2 - 1,
-                    ),
-                ),
-            )
+            pygame.draw.polygon(scr, (30, 30, 30), outerPoints)
+            pygame.draw.polygon(scr, (170, 170, 170), getInner(2))
             scr.blit(
                 self.font2.render("Jail", True, (20, 20, 20)),
                 (
@@ -170,83 +96,15 @@ class CLS_Cell(object):
                 ),
             )
         elif self.cellType == "surprise":
-            pygame.draw.polygon(
-                scr,
-                (150, 100, 54),
-                (
-                    (self.x, self.y + self.cSize),
-                    (self.x - self.cSize * 3**0.5 // 2, self.y + self.cSize // 2),
-                    (self.x - self.cSize * 3**0.5 // 2, self.y - self.cSize // 2),
-                    (self.x, self.y - self.cSize),
-                    (self.x + self.cSize * 3**0.5 // 2, self.y - self.cSize // 2),
-                    (self.x + self.cSize * 3**0.5 // 2, self.y + self.cSize // 2),
-                ),
-            )
-            pygame.draw.polygon(
-                scr,
-                (210, 190, 170),
-                (
-                    (self.x, self.y + self.cSize - 2),
-                    (
-                        self.x - self.cSize * 3**0.5 // 2 + 2,
-                        self.y + self.cSize // 2 - 1,
-                    ),
-                    (
-                        self.x - self.cSize * 3**0.5 // 2 + 2,
-                        self.y - self.cSize // 2 + 1,
-                    ),
-                    (self.x, self.y - self.cSize + 2),
-                    (
-                        self.x + self.cSize * 3**0.5 // 2 - 2,
-                        self.y - self.cSize // 2 + 1,
-                    ),
-                    (
-                        self.x + self.cSize * 3**0.5 // 2 - 2,
-                        self.y + self.cSize // 2 - 1,
-                    ),
-                ),
-            )
+            pygame.draw.polygon(scr, (150, 100, 54), outerPoints)
+            pygame.draw.polygon(scr, (210, 190, 170), getInner(2))
             scr.blit(
                 self.font.render("Surprise", True, (110, 70, 24)),
                 (self.x - self.font.size("Surprise")[0] // 2, self.y + self.cSize // 3),
             )
         elif self.cellType == "punishment":
-            pygame.draw.polygon(
-                scr,
-                (0, 0, 0),
-                (
-                    (self.x, self.y + self.cSize),
-                    (self.x - self.cSize * 3**0.5 // 2, self.y + self.cSize // 2),
-                    (self.x - self.cSize * 3**0.5 // 2, self.y - self.cSize // 2),
-                    (self.x, self.y - self.cSize),
-                    (self.x + self.cSize * 3**0.5 // 2, self.y - self.cSize // 2),
-                    (self.x + self.cSize * 3**0.5 // 2, self.y + self.cSize // 2),
-                ),
-            )
-            pygame.draw.polygon(
-                scr,
-                (190, 190, 190),
-                (
-                    (self.x, self.y + self.cSize - 2),
-                    (
-                        self.x - self.cSize * 3**0.5 // 2 + 2,
-                        self.y + self.cSize // 2 - 1,
-                    ),
-                    (
-                        self.x - self.cSize * 3**0.5 // 2 + 2,
-                        self.y - self.cSize // 2 + 1,
-                    ),
-                    (self.x, self.y - self.cSize + 2),
-                    (
-                        self.x + self.cSize * 3**0.5 // 2 - 2,
-                        self.y - self.cSize // 2 + 1,
-                    ),
-                    (
-                        self.x + self.cSize * 3**0.5 // 2 - 2,
-                        self.y + self.cSize // 2 - 1,
-                    ),
-                ),
-            )
+            pygame.draw.polygon(scr, (0, 0, 0), outerPoints)
+            pygame.draw.polygon(scr, (190, 190, 190), getInner(2))
             scr.blit(
                 self.font.render("Punishment", True, (0, 0, 0)),
                 (
@@ -255,84 +113,16 @@ class CLS_Cell(object):
                 ),
             )
         elif self.cellType == "treasure":
-            pygame.draw.polygon(
-                scr,
-                (130, 110, 70),
-                (
-                    (self.x, self.y + self.cSize),
-                    (self.x - self.cSize * 3**0.5 // 2, self.y + self.cSize // 2),
-                    (self.x - self.cSize * 3**0.5 // 2, self.y - self.cSize // 2),
-                    (self.x, self.y - self.cSize),
-                    (self.x + self.cSize * 3**0.5 // 2, self.y - self.cSize // 2),
-                    (self.x + self.cSize * 3**0.5 // 2, self.y + self.cSize // 2),
-                ),
-            )
-            pygame.draw.polygon(
-                scr,
-                (230, 219, 200),
-                (
-                    (self.x, self.y + self.cSize - 2),
-                    (
-                        self.x - self.cSize * 3**0.5 // 2 + 2,
-                        self.y + self.cSize // 2 - 1,
-                    ),
-                    (
-                        self.x - self.cSize * 3**0.5 // 2 + 2,
-                        self.y - self.cSize // 2 + 1,
-                    ),
-                    (self.x, self.y - self.cSize + 2),
-                    (
-                        self.x + self.cSize * 3**0.5 // 2 - 2,
-                        self.y - self.cSize // 2 + 1,
-                    ),
-                    (
-                        self.x + self.cSize * 3**0.5 // 2 - 2,
-                        self.y + self.cSize // 2 - 1,
-                    ),
-                ),
-            )
+            pygame.draw.polygon(scr, (130, 110, 70), outerPoints)
+            pygame.draw.polygon(scr, (230, 219, 200), getInner(2))
             scr.blit(
                 self.font.render("Treasure", True, (50, 50, 20)),
                 (self.x - self.font.size("Treasure")[0] // 2, self.y + self.cSize // 3),
             )
         else:
             tWords = self.cellType.split()
-            pygame.draw.polygon(
-                scr,
-                (30, 50, 30),
-                (
-                    (self.x, self.y + self.cSize),
-                    (self.x - self.cSize * 3**0.5 // 2, self.y + self.cSize // 2),
-                    (self.x - self.cSize * 3**0.5 // 2, self.y - self.cSize // 2),
-                    (self.x, self.y - self.cSize),
-                    (self.x + self.cSize * 3**0.5 // 2, self.y - self.cSize // 2),
-                    (self.x + self.cSize * 3**0.5 // 2, self.y + self.cSize // 2),
-                ),
-            )
-            pygame.draw.polygon(
-                scr,
-                (230, 250, 230),
-                (
-                    (self.x, self.y + self.cSize - 2),
-                    (
-                        self.x - self.cSize * 3**0.5 // 2 + 2,
-                        self.y + self.cSize // 2 - 1,
-                    ),
-                    (
-                        self.x - self.cSize * 3**0.5 // 2 + 2,
-                        self.y - self.cSize // 2 + 1,
-                    ),
-                    (self.x, self.y - self.cSize + 2),
-                    (
-                        self.x + self.cSize * 3**0.5 // 2 - 2,
-                        self.y - self.cSize // 2 + 1,
-                    ),
-                    (
-                        self.x + self.cSize * 3**0.5 // 2 - 2,
-                        self.y + self.cSize // 2 - 1,
-                    ),
-                ),
-            )
+            pygame.draw.polygon(scr, (30, 50, 30), outerPoints)
+            pygame.draw.polygon(scr, (230, 250, 230), getInner(2))
             scr.blit(
                 self.font.render(tWords[0].title(), True, (30, 50, 30)),
                 (self.x - self.font.size(tWords[0].title())[0] // 2, self.y),
