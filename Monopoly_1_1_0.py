@@ -25,10 +25,11 @@ class CLS_Cell(object):
         self.cellType = cellType
         self.name, self.price, self.cColor = name, price, cColor
         self.font = pygame.font.Font(
-            "Data\\Fonts\\GlacialIndifference-Regular.otf", self.cSize * 3 // 11
+            "Data/Fonts/GlacialIndifference-Regular.otf",
+            self.cSize * 3 // 11,
         )
         self.font2 = pygame.font.Font(
-            "Data\\Fonts\\GlacialIndifference-Regular.otf", self.cSize // 3
+            "Data/Fonts/GlacialIndifference-Regular.otf", self.cSize // 3
         )
 
     def draw(self, scr):
@@ -469,7 +470,7 @@ class CLS_Board(object):
 class FW_Main(object):
     def __init__(self):
         # Initialization of countries
-        cFile = open("Data\\countries.txt", "r")
+        cFile = open("Data/countries.txt", "r")
         cList = cFile.readlines()
         cFile.close()
         self.countries = []
@@ -477,7 +478,7 @@ class FW_Main(object):
             self.countries.append(group.strip().split(", "))
 
         # Initialization of prices
-        pFile = open("Data\\prices.txt", "r")
+        pFile = open("Data/prices.txt", "r")
         pList = pFile.readlines()
         pFile.close()
         self.prices = []
@@ -485,7 +486,7 @@ class FW_Main(object):
             self.prices.append(list(map(int, price.strip().split(", "))))
 
         # Initialization of colors
-        rFile = open("Data\\colors.txt", "r")
+        rFile = open("Data/colors.txt", "r")
         rList = rFile.readlines()
         rFile.close()
         self.colors = []
