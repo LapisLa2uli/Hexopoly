@@ -1,5 +1,9 @@
 # **Change log**
 
+**May 9, 2025**
+
+-   formatting and removing redundant code
+
 **May 7, 2025**
 
 -   edited `README.md`, made repository public and added branch ruleset
