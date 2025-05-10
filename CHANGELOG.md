@@ -27,3 +27,7 @@
 **Feb-Apr 2025**
 
 -   create basic game board and labels in **versions 1.0.x** **(DEPRECATED)**
+
+**May 9, 2025**
+
+-   formatting and removing redundant code
