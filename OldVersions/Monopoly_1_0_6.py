@@ -116,7 +116,7 @@ class CLS_Board(object):
             setCells = random.randint(4, 6)
         else:
             setCells = random.randint(6, 7)
-        setNum = min(random.randint(int((iLen * 2 / 3) // setCells), int((iLen * 7 / 8) // setCells)), 28)
+        setNum = min(random.randint((iLen * 3 / 4) // setCells, (iLen * 7 / 8) // setCells), 28)
         cSets = random.sample(list(range(28)), setNum)
         for i in range(setNum):
             cLeft = random.sample(list(range(7)), setCells)
@@ -193,7 +193,7 @@ class FW_Main(object):
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
         self.clock = pygame.time.Clock()
-        self.size = 6
+        self.size = 10
         self.board = CLS_Board(self.size, self.countries, self.prices, self.colors)
 
     def play(self):

@@ -25,8 +25,9 @@ Version Updates:
 import pygame, sys, numpy, random, math, time, os
 
 SCREEN_W, SCREEN_H = 1500, 900
-
-
+fileFlag=False
+if os.getcwd()[len(os.getcwd())-os.getcwd().index('\\')+2:]=='OldVersions':
+    fileFlag=True
 # Class of Cells:
 class CLS_Cell(object):
     def __init__(self, x, y, cSize, cellType, name, price, cColor, bColor, stType, img, tColor):
@@ -34,8 +35,8 @@ class CLS_Cell(object):
         self.cSize = cSize
         self.cellType = cellType
         self.name, self.price, self.cColor, self.bColor = name, price, cColor, bColor
-        self.font = pygame.font.Font(os.path.relpath('..\\Resources\\GlacialIndifference-Regular.otf'), self.cSize * 3 // 11)
-        self.font2 = pygame.font.Font(os.path.relpath('..\\Resources\\GlacialIndifference-Regular.otf'), self.cSize // 3)
+        self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Resources\\GlacialIndifference-Regular.otf'), self.cSize * 3 // 11)
+        self.font2 = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Resources\\GlacialIndifference-Regular.otf'), self.cSize // 3)
         self.tColor = tColor
         self.stType = stType
         self.img = img
@@ -99,31 +100,31 @@ class CLS_Board(object):
         self.indices = list(range(self.cellNum))
         self.distribution = [0] * self.cellNum
 
-        self.elec_pic = pygame.image.load(os.path.relpath('..\\Resources\\elec_company.png'))
+        self.elec_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Resources\\elec_company.png'))
         self.elec_pic = pygame.transform.scale(self.elec_pic, (self.cSize, self.cSize))
         self.elec_pic.set_colorkey((255, 255, 255))
-        self.water_pic = pygame.image.load(os.path.relpath('..\\Resources\\water_company.png'))
+        self.water_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Resources\\water_company.png'))
         self.water_pic = pygame.transform.scale(self.water_pic, (self.cSize, self.cSize))
         self.water_pic.set_colorkey((255, 255, 255))
-        self.oil_pic = pygame.image.load(os.path.relpath('..\\Resources\\oil_company.png'))
+        self.oil_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Resources\\oil_company.png'))
         self.oil_pic = pygame.transform.scale(self.oil_pic, (self.cSize, self.cSize * 3 // 4))
         self.oil_pic.set_colorkey((255, 255, 255))
-        self.jail_pic = pygame.image.load(os.path.relpath('..\\Resources\\jail_pic.png'))
+        self.jail_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Resources\\jail_pic.png'))
         self.jail_pic = pygame.transform.scale(self.jail_pic, (self.cSize, self.cSize * 4 // 3))
         self.jail_pic.set_colorkey((255, 255, 255))
-        self.auschwitz_pic = pygame.image.load(os.path.relpath('..\\Resources\\auschwitz_pic.png'))
+        self.auschwitz_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Resources\\auschwitz_pic.png'))
         self.auschwitz_pic = pygame.transform.scale(self.auschwitz_pic, (self.cSize, self.cSize * 5 // 4))
         self.auschwitz_pic.set_colorkey((255, 255, 255))
-        self.casino_pic = pygame.image.load(os.path.relpath('..\\Resources\\casino_pic.png'))
+        self.casino_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Resources\\casino_pic.png'))
         self.casino_pic = pygame.transform.scale(self.casino_pic, (self.cSize * 7 // 5, self.cSize * 7 // 5))
         self.casino_pic.set_colorkey((255, 255, 255))
-        self.treasure_pic = pygame.image.load(os.path.relpath('..\\Resources\\treasure_pic.png'))
+        self.treasure_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Resources\\treasure_pic.png'))
         self.treasure_pic = pygame.transform.scale(self.treasure_pic, (self.cSize, self.cSize * 4 // 3))
         self.treasure_pic.set_colorkey((255, 255, 255))
-        self.surprise_pic = pygame.image.load(os.path.relpath('..\\Resources\\surprise_pic.png'))
+        self.surprise_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Resources\\surprise_pic.png'))
         self.surprise_pic = pygame.transform.scale(self.surprise_pic, (self.cSize, self.cSize * 4 // 3))
         self.surprise_pic.set_colorkey((255, 255, 255))
-        self.punishment_pic = pygame.image.load(os.path.relpath('..\\Resources\\punishment_pic.png'))
+        self.punishment_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Resources\\punishment_pic.png'))
         self.punishment_pic = pygame.transform.scale(self.punishment_pic, (self.cSize, self.cSize * 4 // 3))
         self.punishment_pic.set_colorkey((255, 255, 255))
 
@@ -131,7 +132,7 @@ class CLS_Board(object):
         for i in range(28):
             row = []
             for j in range(7):
-                flag = pygame.image.load(os.path.relpath(f'..\\country_flags\\{i}{chr(j + 97)}.jpg'))
+                flag = pygame.image.load(os.path.relpath('..\\'*fileFlag+f'country_flags\\{i}{chr(j + 97)}.jpg'))
                 flag = pygame.transform.scale(flag, (self.cSize * 4 // 5, self.cSize // 2))
                 if countries[i][j] == 'Nepal':
                     flag.set_colorkey((255, 255, 255))
@@ -175,7 +176,7 @@ class CLS_Board(object):
             setCells = random.randint(4, 6)
         else:
             setCells = random.randint(6, 7)
-        setNum = min(random.randint((iLen * 3 / 4) // setCells, (iLen * 7 / 8) // setCells), 28)
+        setNum = min(random.randint(int((iLen * 3 / 4) // setCells), int((iLen * 7 / 8) // setCells)), 28)
         cSets = random.sample(list(range(28)), setNum)
         for i in range(setNum):
             cLeft = random.sample(list(range(7)), setCells)
@@ -237,7 +238,7 @@ class FW_Main(object):
 
     def __init__(self):
         # Initialization of countries
-        cFile = open(os.path.relpath("..\\Resources\\countries.txt"), 'r')
+        cFile = open(os.path.relpath('..\\'*fileFlag+"Resources\\countries.txt"), 'r')
         cList = cFile.readlines()
         cFile.close()
         self.countries = []
@@ -245,7 +246,7 @@ class FW_Main(object):
             self.countries.append(group.strip().split(', '))
 
         # Initialization of prices
-        pFile = open(os.path.relpath("..\\Resources\\prices.txt"), 'r')
+        pFile = open(os.path.relpath('..\\'*fileFlag+"Resources\\prices.txt"), 'r')
         pList = pFile.readlines()
         pFile.close()
         self.prices = []
@@ -253,7 +254,7 @@ class FW_Main(object):
             self.prices.append(list(map(int, price.strip().split(', '))))
 
         # Initialization of colors
-        rFile = open(os.path.relpath("..\\Resources\\colors.txt"), 'r')
+        rFile = open(os.path.relpath('..\\'*fileFlag+"Resources\\colors.txt"), 'r')
         rList = rFile.readlines()
         rFile.close()
         self.colors = []
@@ -263,7 +264,7 @@ class FW_Main(object):
             self.colors.append((a, b, c))
 
         pygame.init()
-        self.font = pygame.font.Font(os.path.relpath('..\\Resources\\GlacialIndifference-Regular.otf'), 50)
+        self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Resources\\GlacialIndifference-Regular.otf'), 50)
         self.screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
         self.clock = pygame.time.Clock()
         self.stat = 0
