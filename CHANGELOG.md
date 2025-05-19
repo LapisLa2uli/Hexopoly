@@ -1,5 +1,13 @@
 # **Change log**
 
+**May 19, 2025**
+
+-   incorporated robert's version into `master`
+
+-   Changed File organization and therefore file-reading code in v1.1.1
+
+-   changed `README.md` according to the new file organization
+
 **May 9, 2025**
 
 -   formatting and removing redundant code

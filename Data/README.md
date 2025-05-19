@@ -9,3 +9,5 @@
 `country_flags` : Stores flags of each country in the game
 
 `Fonts` : Stores fonts used in the game
+
+`Resources`: images used within the code
