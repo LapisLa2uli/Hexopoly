@@ -1,0 +1,14 @@
+-   [ ] Create Players and basic movement
+    -   [ ] avatar for players and clarify position of avatars
+    -   [ ] Unify color scheme
+    -   [ ] Dice animation
+    -   [ ] Animated movement
+    -   [ ] Take turns mechanism
+-   [ ] Clarify specific game rules and incorporate into code
+    -   [ ] Variable rent
+    -   [ ] Fines and awards
+    -   [ ] Chances
+    -   [ ] Misc
+    -   [ ] Jail
+    -   [ ] Water/electric company
+-   [ ] Title Page
