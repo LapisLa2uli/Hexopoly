@@ -1,5 +1,9 @@
 # **Change log**
 
+**Jun 21, 2025**
+
+-   Added version 1.1.2a, which creates player avatars (**WIP as of Jun 21**)
+
 **May 19, 2025**
 
 -   incorporated robert's version into `master`
