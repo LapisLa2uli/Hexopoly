@@ -55,7 +55,6 @@ class CLS_player(object):
                         ((X-size * 3 ** 0.5 // 2+margin//2, Y-size // 2+margin//(3**0.5/2+0.5))))
                    ]
         pygame.draw.polygon(scr,self.color,pointList[position-1])
-        print(pointList[position-1])
 # Class of Cells:
 class CLS_Cell(object):
     def __init__(self, x, y, cSize, cellType, name, price, cColor, bColor, stType, img, tColor):
