@@ -25,9 +25,9 @@ Version Updates:
 import pygame, sys, numpy, random, math, time, os
 
 SCREEN_W, SCREEN_H = 1500, 900
-fileFlag=False
-if os.getcwd()[len(os.getcwd())-os.getcwd().index('\\')+2:]=='OldVersions':
-    fileFlag=True
+fileFlag = False
+if os.getcwd()[len(os.getcwd()) - os.getcwd().index('\\') + 2:] == 'OldVersions':
+    fileFlag = True
 # Class of Cells:
 class CLS_Cell(object):
     def __init__(self, x, y, cSize, cellType, name, price, cColor, bColor, stType, img, tColor):
@@ -272,6 +272,7 @@ class FW_Main(object):
         self.sizeChar, self.pChar, self.nameChar = '_', '_', list('_' * self.nameLen)
         self.pNum = 0
         self.neStat = 0
+        self.shiftStat = 0
         self.names = []
 
     def play(self):
@@ -297,7 +298,18 @@ class FW_Main(object):
         if self.stat == 3:
             self.board.draw(self.screen)
 
-        for event in pygame.event.get():
+        eventList = pygame.event.get()
+        for event in eventList:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT:
+                    self.shiftStat = 1
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT:
+                    self.shiftStat = 0
+        for event in eventList:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -320,16 +332,16 @@ class FW_Main(object):
                                 continue
                             if ''.join(self.nameChar).strip('_') in self.names:
                                 continue
-                            self.names.append(''.join(self.nameChar).strip('_'))
+                            self.names.append(''.join(self.nameChar).strip('_').strip())
                             self.neStat += 1
                             self.nameChar = list('_' * self.nameLen)
                         else:
-                            if self.nameChar == '_':
+                            if self.nameChar[-1] == '_':
                                 continue
                             if ''.join(self.nameChar).strip('_') in self.names:
                                 continue
                             self.stat = 3
-                            self.names.append(''.join(self.nameChar).strip('_'))
+                            self.names.append(''.join(self.nameChar).strip('_').strip())
                             self.nameChar = list('_' * self.nameLen)
                 if event.key <= pygame.K_9 and event.key >= pygame.K_3 and self.stat == 0:
                     if self.sizeChar == '_':
@@ -341,8 +353,16 @@ class FW_Main(object):
                         self.pChar = str(event.key - ord('1') + 1)
                 if event.key == pygame.K_BACKSPACE and self.stat == 1:
                     self.pChar = '_'
-                if (event.key >= ord('0') and event.key <= ord('9') or event.key >= ord('a') and event.key <= ord('z')) and self.stat == 2:
+                if (event.key >= ord('0') and event.key <= ord('9') or event.key >= ord('a') and event.key <= ord('z')) and self.stat == 2 and self.shiftStat == 0:
                     if self.nameChar[0] != '_':
+                        continue
+                    self.nameChar = self.nameChar[1:] + [chr(event.key)]
+                if (event.key >= ord('a') and event.key <= ord('z')) and self.stat == 2 and self.shiftStat == 1:
+                    if self.nameChar[0] != '_':
+                        continue
+                    self.nameChar = self.nameChar[1:] + [chr(event.key - 32)]
+                if event.key == pygame.K_SPACE and self.stat == 2 and self.shiftStat == 0:
+                    if self.nameChar[0] != '_' or self.nameChar[-1] == '_':
                         continue
                     self.nameChar = self.nameChar[1:] + [chr(event.key)]
                 if event.key == pygame.K_BACKSPACE and self.stat == 2:
