@@ -1,4 +1,4 @@
-# MONOPOLY Version 1.1.2a
+# MONOPOLY Version 1.1.2d
 
 """
 Version Updates:
@@ -20,6 +20,9 @@ Version Updates:
 1.1.0 Reorganized Path
 1.1.1 Player Name Input
 1.1.2a Player Avatar
+1.1.2b Player Name Display
+1.1.2c Button Display
+1.1.2d Player Turn Setup
 """
 
 import pygame, sys, numpy, random, math, time, os
@@ -40,12 +43,17 @@ class CLS_player(object):
                     \      /
                        \/
     '''
-    def __init__(self,startCell,color, name):
+    def __init__(self, pIndex, startCell, nameColor, color, dieColor, name, lifeStat):
+        self.pIndex = pIndex
         self.cell=startCell
+        self.nameColor = nameColor
         self.color=color
+        self.dieColor = dieColor
         self.name = name
-        self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\GlacialIndifference-Regular.otf'), main.board.cSize // 2)
-    def draw(self,scr,position):
+        self.lifeStat = lifeStat
+        self.textW = 20
+        self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\GlacialIndifference-Regular.otf'), self.textW)
+    def draw(self, scr, position, turn):
         X,Y=main.board.cells[self.cell].x,main.board.cells[self.cell].y
         size=main.board.cSize
         margin=size//6
@@ -71,6 +79,18 @@ class CLS_player(object):
         triSurface = pygame.Surface((SCREEN_W, SCREEN_H), pygame.SRCALPHA)
         pygame.draw.polygon(triSurface, self.color,pointList[position-1])
         scr.blit(triSurface, (0, 0))
+
+        if self.lifeStat == 0:
+            pygame.draw.rect(scr, self.dieColor, pygame.Rect(10, SCREEN_H - (6 - self.pIndex) * (self.textW + 10), 50, self.textW))
+            scr.blit(self.font.render(self.name, True, (122, 112, 128)), (70, SCREEN_H - (6 - self.pIndex) * (self.textW + 10)))
+        else:
+            if turn == self.pIndex:
+                pygame.draw.rect(scr, (255, 255, 255), pygame.Rect(10, SCREEN_H - (6 - self.pIndex) * (self.textW + 10), 50, self.textW))
+                pygame.draw.rect(scr, self.nameColor, pygame.Rect(13, SCREEN_H - (6 - self.pIndex) * (self.textW + 10) + 3, 44, self.textW - 6))
+            else:
+                pygame.draw.rect(scr, self.nameColor, pygame.Rect(10, SCREEN_H - (6 - self.pIndex) * (self.textW + 10), 50, self.textW))
+            scr.blit(self.font.render(self.name, True, (245, 225, 255)), (70, SCREEN_H - (6 - self.pIndex) * (self.textW + 10)))
+            
 # Class of Cells:
 class CLS_Cell(object):
     def __init__(self, x, y, cSize, cellType, name, price, cColor, bColor, stType, img, tColor):
@@ -272,6 +292,36 @@ class CLS_Board(object):
             cell.draw(scr)
 
 
+class CLS_Button(object):
+    def __init__(self, img, pressed_img, posX, posY, showStat, w, h, doneStat):
+        self.img = img
+        self.pressed_img = pressed_img
+        self.posX, self.posY = posX, posY
+        self.showStat = showStat
+        self.pressedStat = 0
+        self.w, self.h = w, h
+        self.doneStat = doneStat
+
+    def draw(self, scr):
+        mPosX, mPosY = pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]
+        if mPosX <= self.posX + self.w and mPosX >= self.posX:
+            if mPosY <= self.posY + self.h and mPosY >= self.posY:
+                self.pressedStat = 1
+            else:
+                self.pressedStat = 0
+        else:
+            self.pressedStat = 0
+        if self.doneStat == 1:
+            scr.blit(self.pressed_img, (self.posX, self.posY))
+        elif self.showStat == 1:
+            if self.pressedStat == 1:
+                crtPic = self.pressed_img
+            else:
+                crtPic = self.img
+            
+            scr.blit(crtPic, (self.posX, self.posY))
+
+
 class FW_Main(object):
     # Status:
     # 0: Entering board size
@@ -282,7 +332,9 @@ class FW_Main(object):
     def __init__(self):
         # Initialization of Players
         self.playerList = []
-        self.plyColorList=[(255, 0, 0, 128), (255, 128, 0, 128), (255, 255, 0, 128), (0, 255, 0, 128), (0, 0, 255, 128), (200, 0, 255, 128)]
+        self.plyTransparentColorList=[(255, 0, 0, 128), (255, 128, 0, 128), (255, 255, 0, 128), (0, 255, 0, 128), (0, 0, 255, 128), (200, 0, 255, 128)]
+        self.plyColorList = [(255, 0, 0), (255, 128, 0), (255, 255, 0), (0, 255, 0), (0, 0, 255), (200, 0, 255)]
+        self.plyDieColorList = [(128, 0, 0), (128, 64, 0), (128, 128, 0), (0, 128, 0), (0, 0, 128), (100, 0, 128)]
         # Initialization of countries
         cFile = open(os.path.relpath('..\\'*fileFlag+"Data\\Resources\\countries.txt"), 'r')
         cList = cFile.readlines()
@@ -310,15 +362,40 @@ class FW_Main(object):
             self.colors.append((a, b, c))
 
         pygame.init()
+        
         self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\GlacialIndifference-Regular.otf'), 50)
         self.screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
         self.clock = pygame.time.Clock()
+
+        self.spin_button_w, self.spin_button_h = 75, 30
+        self.end_turn_button_w, self.end_turn_button_h = 100, 30
+        self.spinner_r = 70
+
+        self.spin_button_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\spin_button_2.png'))
+        self.spin_button_pic = pygame.transform.scale(self.spin_button_pic, (self.spin_button_w, self.spin_button_h))
+        self.spin_button_pic.set_colorkey((255, 255, 255))
+        self.spin_button_pressed_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\spin_button_1.png'))
+        self.spin_button_pressed_pic = pygame.transform.scale(self.spin_button_pressed_pic, (self.spin_button_w, self.spin_button_h))
+        self.spin_button_pressed_pic.set_colorkey((255, 255, 255))
+        self.end_turn_button_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\end_turn_button_2.png'))
+        self.end_turn_button_pic = pygame.transform.scale(self.end_turn_button_pic, (self.end_turn_button_w, self.end_turn_button_h))
+        self.end_turn_button_pic.set_colorkey((255, 255, 255))
+        self.end_turn_button_pressed_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\end_turn_button_1.png'))
+        self.end_turn_button_pressed_pic = pygame.transform.scale(self.end_turn_button_pressed_pic, (self.end_turn_button_w, self.end_turn_button_h))
+        self.end_turn_button_pressed_pic.set_colorkey((255, 255, 255))
+
+        self.spin_button_1 = CLS_Button(self.spin_button_pic, self.spin_button_pressed_pic, SCREEN_W - 3 * self.spinner_r - 20 - self.spin_button_w // 2, 30 + 2 * self.spinner_r, 1, self.spin_button_w, self.spin_button_h, 0)
+        self.spin_button_2 = CLS_Button(self.spin_button_pic, self.spin_button_pressed_pic, SCREEN_W - self.spinner_r - 10 - self.spin_button_w // 2, 30 + 2 * self.spinner_r, 1, self.spin_button_w, self.spin_button_h, 0)
+        self.end_turn_button = CLS_Button(self.end_turn_button_pic, self.end_turn_button_pressed_pic, SCREEN_W - 2 * self.spinner_r - 15 - self.end_turn_button_w // 2, 50 + self.spin_button_h + 2 * self.spinner_r, 1, self.end_turn_button_w, self.end_turn_button_h, 1)
+        
         self.stat = 0
         self.nameLen = 20
         self.sizeChar, self.pChar, self.nameChar = '_', '_', list('_' * self.nameLen)
         self.pNum = 0
         self.neStat = 0
         self.names = []
+
+        self.current_player = 0
 
     def play(self):
         self.screen.fill((22, 8, 36))
@@ -344,8 +421,13 @@ class FW_Main(object):
             self.board.draw(self.screen)
             posList=[0]*self.board.cellNum
             for player in self.playerList:
-                player.draw(self.screen,posList[player.cell]+1)
-                posList[player.cell]+=1
+                player.draw(self.screen, posList[player.cell] + 1, self.current_player)
+                posList[player.cell] += 1
+
+        if self.stat == 3:
+            self.spin_button_1.draw(self.screen)
+            self.spin_button_2.draw(self.screen)
+            self.end_turn_button.draw(self.screen)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -364,6 +446,7 @@ class FW_Main(object):
                             continue
                         self.stat = 2
                         self.pNum = int(self.pChar)
+                        self.current_player = random.randint(0, self.pNum - 1)
                     if self.stat == 2:
                         if self.neStat != self.pNum - 1:
                             if self.nameChar[-1] == '_':
@@ -371,7 +454,6 @@ class FW_Main(object):
                             if ''.join(self.nameChar).strip('_') in self.names:
                                 continue
                             self.names.append(''.join(self.nameChar).strip('_'))
-                            self.nameChar = list('_' * self.nameLen)
                         else:
                             if self.nameChar == '_':
                                 continue
@@ -379,8 +461,8 @@ class FW_Main(object):
                                 continue
                             self.stat = 3
                             self.names.append(''.join(self.nameChar).strip('_'))
-                            self.nameChar = list('_' * self.nameLen)
-                        self.playerList.append(CLS_player(self.board.cellNum//2, self.plyColorList[self.neStat], ''.join(self.nameChar).strip('_')))
+                        self.playerList.append(CLS_player(self.neStat, self.board.cellNum//2, self.plyColorList[self.neStat], self.plyTransparentColorList[self.neStat], self.plyDieColorList[self.neStat], ' '.join(''.join(self.nameChar).strip('_').split('_')), 1))
+                        self.nameChar = list('_' * self.nameLen)
                         self.neStat += 1
                 if event.key <= pygame.K_9 and event.key >= pygame.K_3 and self.stat == 0:
                     if self.sizeChar == '_':
@@ -404,6 +486,20 @@ class FW_Main(object):
                     if self.nameChar[0] != '_':
                         continue
                     self.nameChar = self.nameChar[1:] + ['_']
+            if event.type == pygame.MOUSEBUTTONDOWN and self.stat == 3:
+                if self.spin_button_1.doneStat == 0 and self.spin_button_1.pressedStat == 1:
+                    self.spin_button_1.doneStat = 1
+                    if self.spin_button_2.doneStat == 1:
+                        self.end_turn_button.doneStat = 0
+                if self.spin_button_2.doneStat == 0 and self.spin_button_2.pressedStat == 1:
+                    self.spin_button_2.doneStat = 1
+                    if self.spin_button_1.doneStat == 1:
+                        self.end_turn_button.doneStat = 0
+                if self.end_turn_button.doneStat == 0 and self.end_turn_button.pressedStat == 1:
+                    self.current_player = (self.current_player + 1) % self.pNum
+                    self.end_turn_button.doneStat = 1
+                    self.spin_button_1.doneStat = 0
+                    self.spin_button_2.doneStat = 0
 
         pygame.display.update()
         self.clock.tick(60)

@@ -1,4 +1,4 @@
-# MONOPOLY Version 1.1.2a
+# MONOPOLY Version 1.1.2b
 
 """
 Version Updates:
@@ -20,6 +20,7 @@ Version Updates:
 1.1.0 Reorganized Path
 1.1.1 Player Name Input
 1.1.2a Player Avatar
+1.1.2b Player Name Display
 """
 
 import pygame, sys, numpy, random, math, time, os
@@ -40,11 +41,14 @@ class CLS_player(object):
                     \      /
                        \/
     '''
-    def __init__(self,startCell,color, name):
+    def __init__(self, pIndex, startCell, nameColor, color, name):
+        self.pIndex = pIndex
         self.cell=startCell
+        self.nameColor = nameColor
         self.color=color
         self.name = name
-        self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\GlacialIndifference-Regular.otf'), main.board.cSize // 2)
+        self.textW = 20
+        self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\GlacialIndifference-Regular.otf'), self.textW)
     def draw(self,scr,position):
         X,Y=main.board.cells[self.cell].x,main.board.cells[self.cell].y
         size=main.board.cSize
@@ -71,6 +75,10 @@ class CLS_player(object):
         triSurface = pygame.Surface((SCREEN_W, SCREEN_H), pygame.SRCALPHA)
         pygame.draw.polygon(triSurface, self.color,pointList[position-1])
         scr.blit(triSurface, (0, 0))
+
+        pygame.draw.rect(scr, self.nameColor, pygame.Rect(10, SCREEN_H - (6 - self.pIndex) * (self.textW + 10), 50, self.textW))
+        scr.blit(self.font.render(self.name, True, (245, 225, 255)), (70, SCREEN_H - (6 - self.pIndex) * (self.textW + 10)))
+        
 # Class of Cells:
 class CLS_Cell(object):
     def __init__(self, x, y, cSize, cellType, name, price, cColor, bColor, stType, img, tColor):
@@ -282,7 +290,8 @@ class FW_Main(object):
     def __init__(self):
         # Initialization of Players
         self.playerList = []
-        self.plyColorList=[(255, 0, 0, 128), (255, 128, 0, 128), (255, 255, 0, 128), (0, 255, 0, 128), (0, 0, 255, 128), (200, 0, 255, 128)]
+        self.plyTransparentColorList=[(255, 0, 0, 128), (255, 128, 0, 128), (255, 255, 0, 128), (0, 255, 0, 128), (0, 0, 255, 128), (200, 0, 255, 128)]
+        self.plyColorList = [(255, 0, 0), (255, 128, 0), (255, 255, 0), (0, 255, 0), (0, 0, 255), (200, 0, 255)]
         # Initialization of countries
         cFile = open(os.path.relpath('..\\'*fileFlag+"Data\\Resources\\countries.txt"), 'r')
         cList = cFile.readlines()
@@ -344,7 +353,7 @@ class FW_Main(object):
             self.board.draw(self.screen)
             posList=[0]*self.board.cellNum
             for player in self.playerList:
-                player.draw(self.screen,posList[player.cell]+1)
+                player.draw(self.screen, posList[player.cell]+1)
                 posList[player.cell]+=1
 
         for event in pygame.event.get():
@@ -371,7 +380,6 @@ class FW_Main(object):
                             if ''.join(self.nameChar).strip('_') in self.names:
                                 continue
                             self.names.append(''.join(self.nameChar).strip('_'))
-                            self.nameChar = list('_' * self.nameLen)
                         else:
                             if self.nameChar == '_':
                                 continue
@@ -379,8 +387,8 @@ class FW_Main(object):
                                 continue
                             self.stat = 3
                             self.names.append(''.join(self.nameChar).strip('_'))
-                            self.nameChar = list('_' * self.nameLen)
-                        self.playerList.append(CLS_player(self.board.cellNum//2, self.plyColorList[self.neStat], ''.join(self.nameChar).strip('_')))
+                        self.playerList.append(CLS_player(self.neStat, self.board.cellNum//2, self.plyColorList[self.neStat], self.plyTransparentColorList[self.neStat], ' '.join(''.join(self.nameChar).strip('_').split('_'))))
+                        self.nameChar = list('_' * self.nameLen)
                         self.neStat += 1
                 if event.key <= pygame.K_9 and event.key >= pygame.K_3 and self.stat == 0:
                     if self.sizeChar == '_':
