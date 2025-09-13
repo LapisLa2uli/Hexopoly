@@ -30,9 +30,9 @@ Version Updates:
 import pygame, sys, numpy, random, math, time, os
 
 SCREEN_W, SCREEN_H = 1500, 900
-fileFlag=False
+fileFlag = False
 if os.getcwd()[len(os.getcwd())-os.getcwd().index('\\')+2:]=='OldVersions':
-    fileFlag=True
+    fileFlag = True
 
 class CLS_player(object):
     '''                 /\
@@ -325,7 +325,7 @@ class CLS_Button(object):
 
 
 class CLS_Spinner(object):
-    def __init__(self, posX, posY, size, borderColor, innerColor, lineColor, divisions, tList, spinnerId):
+    def __init__(self, posX, posY, size, borderColor, innerColor, lineColor, divisions, tList, spinnerId, handStat):
         self.posX, self.posY = posX, posY
         self.size = size
         self.borderColor, self.innerColor, self.lineColor = borderColor, innerColor, lineColor
@@ -334,32 +334,74 @@ class CLS_Spinner(object):
         self.spinnerId = spinnerId
         self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\GlacialIndifference-Regular.otf'), self.size // 4)
 
+        self.handStat = 0
+        self.handAngle = 0
+        self.speed = random.random() / 5 + 1 / 2
+        self.deceleration = random.random() / 240 + 1 / 120
+
     def draw(self, scr):
         pygame.draw.circle(scr, self.borderColor, (self.posX, self.posY), self.size)
         pygame.draw.circle(scr, self.innerColor, (self.posX, self.posY), self.size * 19 // 20)
         for i in range(self.divisions):
-            pygame.draw.line(scr, self.lineColor, (self.posX, self.posY), (self.posX + self.size * 19 * math.cos(2 * math.pi * i / self.divisions) // 20, self.posY + self.size * 19 * math.sin(2 * math.pi * i / self.divisions) // 20))
+            pygame.draw.line(scr, self.lineColor, (self.posX, self.posY), \
+                             (self.posX + self.size * 19 * math.sin(2 * math.pi * i / self.divisions) // 20, \
+                              self.posY - self.size * 19 * math.cos(2 * math.pi * i / self.divisions) // 20))
         if self.spinnerId == 0:
             for i in range(self.divisions):
                 pygame.draw.polygon(scr, self.lineColor, \
-                                    ((self.posX + self.size * math.cos(2 * math.pi * (i + 0.5) / self.divisions) // 4, \
-                                     self.posY + self.size * math.sin(2 * math.pi * (i + 0.5) / self.divisions) // 4), \
-                                    (self.posX + 2 * self.size * math.cos(2 * math.pi * (i + 0.55) / self.divisions) // 3, \
-                                     self.posY + 2 * self.size * math.sin(2 * math.pi * (i + 0.55) / self.divisions) // 3), \
-                                    (self.posX + 2 * self.size * math.cos(2 * math.pi * (i + 0.45) / self.divisions) // 3, \
-                                     self.posY + 2 * self.size * math.sin(2 * math.pi * (i + 0.45) / self.divisions) // 3)))
+                                    ((self.posX + self.size * math.sin(2 * math.pi * (i + 0.5) / self.divisions) // 4, \
+                                     self.posY - self.size * math.cos(2 * math.pi * (i + 0.5) / self.divisions) // 4), \
+                                    (self.posX + 2 * self.size * math.sin(2 * math.pi * (i + 0.55) / self.divisions) // 3, \
+                                     self.posY - 2 * self.size * math.cos(2 * math.pi * (i + 0.55) / self.divisions) // 3), \
+                                    (self.posX + 2 * self.size * math.sin(2 * math.pi * (i + 0.45) / self.divisions) // 3, \
+                                     self.posY - 2 * self.size * math.cos(2 * math.pi * (i + 0.45) / self.divisions) // 3)))
                 pygame.draw.polygon(scr, self.lineColor, \
-                                    ((self.posX + 4 * self.size * math.cos(2 * math.pi * (i + 0.5) / self.divisions) // 5, \
-                                     self.posY + 4 * self.size * math.sin(2 * math.pi * (i + 0.5) / self.divisions) // 5), \
-                                    (self.posX + 2 * self.size * math.cos(2 * math.pi * (i + 0.6) / self.divisions) // 3, \
-                                     self.posY + 2 * self.size * math.sin(2 * math.pi * (i + 0.6) / self.divisions) // 3), \
-                                    (self.posX + 2 * self.size * math.cos(2 * math.pi * (i + 0.4) / self.divisions) // 3, \
-                                     self.posY + 2 * self.size * math.sin(2 * math.pi * (i + 0.4) / self.divisions) // 3)))                
+                                    ((self.posX + 4 * self.size * math.sin(2 * math.pi * (i + 0.5) / self.divisions) // 5, \
+                                     self.posY - 4 * self.size * math.cos(2 * math.pi * (i + 0.5) / self.divisions) // 5), \
+                                    (self.posX + 2 * self.size * math.sin(2 * math.pi * (i + 0.6) / self.divisions) // 3, \
+                                     self.posY - 2 * self.size * math.cos(2 * math.pi * (i + 0.6) / self.divisions) // 3), \
+                                    (self.posX + 2 * self.size * math.sin(2 * math.pi * (i + 0.4) / self.divisions) // 3, \
+                                     self.posY - 2 * self.size * math.cos(2 * math.pi * (i + 0.4) / self.divisions) // 3)))                
         elif self.spinnerId == 1:
             for i in range(self.divisions):
                 scr.blit(self.font.render(self.tList[i], True, self.lineColor), \
-                         (self.posX + 2 * self.size * math.cos(2 * math.pi * (i + 0.5) / self.divisions) // 3 - self.font.size(self.tList[i])[0] // 2, \
-                          self.posY + 2 * self.size * math.sin(2 * math.pi * (i + 0.5) / self.divisions) // 3 - self.font.size(self.tList[i])[1] // 2))
+                         (self.posX + 2 * self.size * math.sin(2 * math.pi * (i + 0.5) / self.divisions) // 3 - self.font.size(self.tList[i])[0] // 2, \
+                          self.posY - 2 * self.size * math.cos(2 * math.pi * (i + 0.5) / self.divisions) // 3 - self.font.size(self.tList[i])[1] // 2))
+        if self.handStat == 1 and self.speed < 0:
+            self.speed = random.random() / 5 + 1 / 2
+            self.deceleration = random.random() / 240 + 1 / 120
+            self.handStat = 0
+        if self.handStat == 1:
+            self.handAngle += self.speed
+            self.speed -= self.deceleration
+        pygame.draw.polygon(scr, self.borderColor, \
+                            ((self.posX - self.size * math.cos(-self.handAngle) // 8, self.posY + self.size * math.sin(-self.handAngle) // 8), \
+                             (self.posX - self.size * math.sin(-self.handAngle) // 8, self.posY - self.size * math.cos(-self.handAngle) // 8), \
+                             (self.posX + self.size * math.cos(-self.handAngle + math.pi / 16) // 8, self.posY - self.size * math.sin(-self.handAngle + math.pi / 16) // 8), \
+                             (self.posX + self.size * math.cos(-self.handAngle + math.pi / 16) // 2, self.posY - self.size * math.sin(-self.handAngle + math.pi / 16) // 2), \
+                             (self.posX + 2 * self.size * math.cos(-self.handAngle) // 3, self.posY - 2 * self.size * math.sin(-self.handAngle) // 3), \
+                             (self.posX + self.size * math.cos(-self.handAngle - math.pi / 16) // 2, self.posY - self.size * math.sin(-self.handAngle - math.pi / 16) // 2), \
+                             (self.posX + self.size * math.cos(-self.handAngle - math.pi / 16) // 8, self.posY - self.size * math.sin(-self.handAngle - math.pi / 16) // 8), \
+                             (self.posX + self.size * math.sin(-self.handAngle) // 8, self.posY + self.size * math.cos(-self.handAngle) // 8)))
+        pygame.draw.polygon(scr, self.lineColor, \
+                            ((self.posX - self.size * math.cos(-self.handAngle) // 12, self.posY + self.size * math.sin(-self.handAngle) // 12), \
+                             (self.posX - self.size * math.sin(-self.handAngle) // 12, self.posY - self.size * math.cos(-self.handAngle) // 12), \
+                             (self.posX + self.size * math.cos(-self.handAngle + math.pi / 22) // 12, self.posY - self.size * math.sin(-self.handAngle + math.pi / 22) // 12), \
+                             (self.posX + self.size * math.cos(-self.handAngle + math.pi / 22) // 2, self.posY - self.size * math.sin(-self.handAngle + math.pi / 22) // 2), \
+                             (self.posX + 3 * self.size * math.cos(-self.handAngle) // 5, self.posY - 3 * self.size * math.sin(-self.handAngle) // 5), \
+                             (self.posX + self.size * math.cos(-self.handAngle - math.pi / 22) // 2, self.posY - self.size * math.sin(-self.handAngle - math.pi / 22) // 2), \
+                             (self.posX + self.size * math.cos(-self.handAngle - math.pi / 22) // 12, self.posY - self.size * math.sin(-self.handAngle - math.pi / 22) // 12), \
+                             (self.posX + self.size * math.sin(-self.handAngle) // 12, self.posY + self.size * math.cos(-self.handAngle) // 12)))
+        pygame.draw.polygon(scr, (250, 245, 255), \
+                            ((self.posX - self.size * math.cos(-self.handAngle) // 12, self.posY + self.size * math.sin(-self.handAngle) // 12), \
+                             (self.posX - self.size * math.sin(-self.handAngle) // 12, self.posY - self.size * math.cos(-self.handAngle) // 12), \
+                             (self.posX + self.size * math.cos(-self.handAngle) // 12, self.posY - self.size * math.sin(-self.handAngle) // 12), \
+                             (self.posX + self.size * math.sin(-self.handAngle) // 12, self.posY + self.size * math.cos(-self.handAngle) // 12)))
+        pygame.draw.polygon(scr, (250, 215, 255), \
+                            ((self.posX + self.size * math.cos(-self.handAngle) // 6, self.posY - self.size * math.sin(-self.handAngle) // 6), \
+                             (self.posX + self.size * math.cos(-self.handAngle + math.pi / 30) // 2, self.posY - self.size * math.sin(-self.handAngle + math.pi / 30) // 2), \
+                             (self.posX + 4 * self.size * math.cos(-self.handAngle) // 7, self.posY - 4 * self.size * math.sin(-self.handAngle) // 7), \
+                             (self.posX + self.size * math.cos(-self.handAngle - math.pi / 30) // 2, self.posY - self.size * math.sin(-self.handAngle - math.pi / 30) // 2)))
 
 class FW_Main(object):
     # Status:
@@ -410,6 +452,7 @@ class FW_Main(object):
         self.end_turn_button_w, self.end_turn_button_h = 100, 30
         self.spinner_r = 70
         self.spinner_border_color, self.spinner_color, self.spinner_line_color = (81, 44, 102), (214, 189, 222), (124, 59, 144)
+        self.spinner_hand_w, self.spinner_hand_h = 12, 114
 
         self.spin_button_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\spin_button_2.png'))
         self.spin_button_pic = pygame.transform.scale(self.spin_button_pic, (self.spin_button_w, self.spin_button_h))
@@ -423,11 +466,19 @@ class FW_Main(object):
         self.end_turn_button_pressed_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\end_turn_button_1.png'))
         self.end_turn_button_pressed_pic = pygame.transform.scale(self.end_turn_button_pressed_pic, (self.end_turn_button_w, self.end_turn_button_h))
         self.end_turn_button_pressed_pic.set_colorkey((255, 255, 255))
-
-        self.spin_button_1 = CLS_Button(self.spin_button_pic, self.spin_button_pressed_pic, SCREEN_W - 3 * self.spinner_r - 20 - self.spin_button_w // 2, 30 + 2 * self.spinner_r, 1, self.spin_button_w, self.spin_button_h, 0)
-        self.spin_button_2 = CLS_Button(self.spin_button_pic, self.spin_button_pressed_pic, SCREEN_W - self.spinner_r - 10 - self.spin_button_w // 2, 30 + 2 * self.spinner_r, 1, self.spin_button_w, self.spin_button_h, 0)
-        self.end_turn_button = CLS_Button(self.end_turn_button_pic, self.end_turn_button_pressed_pic, SCREEN_W - 2 * self.spinner_r - 15 - self.end_turn_button_w // 2, 50 + self.spin_button_h + 2 * self.spinner_r, 1, self.end_turn_button_w, self.end_turn_button_h, 1)
-        self.spinner_1 = CLS_Spinner(SCREEN_W - 3 * self.spinner_r - 20, 20 + self.spinner_r, self.spinner_r, self.spinner_border_color, self.spinner_color, self.spinner_line_color, 6, [], 0)
+        
+        self.spin_button_1 = CLS_Button(self.spin_button_pic, self.spin_button_pressed_pic, \
+                                        SCREEN_W - 3 * self.spinner_r - 20 - self.spin_button_w // 2, 30 + 2 * self.spinner_r, 1, \
+                                        self.spin_button_w, self.spin_button_h, 0)
+        self.spin_button_2 = CLS_Button(self.spin_button_pic, self.spin_button_pressed_pic, \
+                                        SCREEN_W - self.spinner_r - 10 - self.spin_button_w // 2, 30 + 2 * self.spinner_r, 1, \
+                                        self.spin_button_w, self.spin_button_h, 0)
+        self.end_turn_button = CLS_Button(self.end_turn_button_pic, self.end_turn_button_pressed_pic, \
+                                          SCREEN_W - 2 * self.spinner_r - 15 - self.end_turn_button_w // 2, 50 + self.spin_button_h + 2 * self.spinner_r, 1, \
+                                          self.end_turn_button_w, self.end_turn_button_h, 1)
+        self.spinner_1 = CLS_Spinner(SCREEN_W - 3 * self.spinner_r - 20, 20 + self.spinner_r, \
+                                     self.spinner_r, self.spinner_border_color, self.spinner_color, self.spinner_line_color, \
+                                     6, [], 0, 0)
         
         self.stat = 0
         self.nameLen = 20
@@ -474,6 +525,11 @@ class FW_Main(object):
             self.spinner_1.draw(self.screen)
             self.spinner_2.draw(self.screen)
 
+        if self.stat == 3 and self.end_turn_button.doneStat == 1:
+            if self.spin_button_1.doneStat == 1 and self.spinner_1.handStat == 0:
+                if self.spin_button_2.doneStat == 1 and self.spinner_2.handStat == 0:
+                    self.end_turn_button.doneStat = 0
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -495,7 +551,9 @@ class FW_Main(object):
                         integerList = []
                         for i in range(self.pNum):
                             integerList.append(str(i + 1))
-                        self.spinner_2 = CLS_Spinner(SCREEN_W - self.spinner_r - 10, 20 + self.spinner_r, self.spinner_r, self.spinner_border_color, self.spinner_color, self.spinner_line_color, self.pNum, integerList, 1)
+                        self.spinner_2 = CLS_Spinner(SCREEN_W - self.spinner_r - 10, 20 + self.spinner_r, \
+                                                     self.spinner_r, self.spinner_border_color, self.spinner_color, self.spinner_line_color, \
+                                                     self.pNum, integerList, 1, 0)
                     if self.stat == 2:
                         if self.neStat != self.pNum - 1:
                             if self.nameChar[-1] == '_':
@@ -538,12 +596,10 @@ class FW_Main(object):
             if event.type == pygame.MOUSEBUTTONDOWN and self.stat == 3:
                 if self.spin_button_1.doneStat == 0 and self.spin_button_1.pressedStat == 1:
                     self.spin_button_1.doneStat = 1
-                    if self.spin_button_2.doneStat == 1:
-                        self.end_turn_button.doneStat = 0
+                    self.spinner_1.handStat = 1
                 if self.spin_button_2.doneStat == 0 and self.spin_button_2.pressedStat == 1:
                     self.spin_button_2.doneStat = 1
-                    if self.spin_button_1.doneStat == 1:
-                        self.end_turn_button.doneStat = 0
+                    self.spinner_2.handStat = 1
                 if self.end_turn_button.doneStat == 0 and self.end_turn_button.pressedStat == 1:
                     self.current_player = (self.current_player + 1) % self.pNum
                     self.end_turn_button.doneStat = 1

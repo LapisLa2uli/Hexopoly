@@ -1,12 +1,20 @@
 # **Change log**
 
+**Sep 13, 2025**
+
+-   Added buttons and spinners, as well as player names in versions 1.1.2b to 1.1.2f
+
+**Sep 6, 2025**
+
+-   Recreated avatars in 1.1.2a through transparency
+
 **Jun 21, 2025**
 
 -   Added version 1.1.2a, which creates player avatars (**WIP as of Jun 21**)
 
 **May 19, 2025**
 
--   incorporated robert's version into `master`
+-   Incorporated Robert's version into `master`
 
 -   Changed File organization and therefore file-reading code in v1.1.1
 
