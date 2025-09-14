@@ -1,5 +1,9 @@
 # **Change log**
 
+**Sep 15, 2025**
+
+-   Added animation to movement of avatars
+
 **Sep 14, 2025**
 
 -   Added movement of avatars
