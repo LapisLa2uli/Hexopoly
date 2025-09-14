@@ -69,6 +69,8 @@ class CLS_player(object):
                 try:
                     newX, newY = self.crtX + self.moveX, self.crtY + self.moveY
                     kCell = self.cellOrg[newY][newX]
+                    if newY < 0 or newX < 0:
+                        b = 1 / 0
                     a = 1 / (kCell + 1) # testing if the cell is -1
                 except:
                     if self.moveDir == 0:
