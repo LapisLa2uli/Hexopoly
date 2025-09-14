@@ -1,5 +1,9 @@
 # **Change log**
 
+**Sep 14, 2025**
+
+-   Added movement of avatars
+
 **Sep 13, 2025**
 
 -   Added buttons and spinners, as well as player names in versions 1.1.2b to 1.1.2f
