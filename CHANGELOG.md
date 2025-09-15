@@ -4,6 +4,8 @@
 
 -   Added animation to movement of avatars
 
+-   Added shining animation to current player's grid
+
 **Sep 14, 2025**
 
 -   Added movement of avatars

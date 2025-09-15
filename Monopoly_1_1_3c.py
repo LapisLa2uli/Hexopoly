@@ -1,4 +1,4 @@
-# MONOPOLY Version 1.1.2d
+# MONOPOLY Version 1.1.3c
 
 """
 Version Updates:
@@ -23,14 +23,19 @@ Version Updates:
 1.1.2b Player Name Display
 1.1.2c Button Display
 1.1.2d Player Turn Setup
+1.1.2e Spinner Display
+1.1.2f Playable Spinner Visualization
+1.1.3a Avatar Moving
+1.1.3b Avatar Moving Animation
+1.1.3c Grid Shining Animation
 """
 
 import pygame, sys, numpy, random, math, time, os
 
 SCREEN_W, SCREEN_H = 1500, 900
-fileFlag=False
+fileFlag = False
 if os.getcwd()[len(os.getcwd())-os.getcwd().index('\\')+2:]=='OldVersions':
-    fileFlag=True
+    fileFlag = True
 
 class CLS_player(object):
     '''                 /\
@@ -45,36 +50,144 @@ class CLS_player(object):
     '''
     def __init__(self, pIndex, startCell, nameColor, color, dieColor, name, lifeStat):
         self.pIndex = pIndex
-        self.cell=startCell
+        self.cell = startCell
+        self.crtX, self.crtY = main.size - 1, main.size - 1
+        self.X, self.Y = main.board.cells[self.cell].x, main.board.cells[self.cell].y
+        self.origX, self.origY = self.X, self.Y
         self.nameColor = nameColor
         self.color=color
         self.dieColor = dieColor
         self.name = name
         self.lifeStat = lifeStat
+        self.moveDir, self.moveDist = 0, 0
+        self.moving = False
+        self.dirList = [[0, -1], [1, 0], [1, 1], [0, 1], [-1, 0], [-1, -1]]
+        self.cellOrg = main.board.cellOrganization
+        self.moveI, self.moveJ = 0, 1
+        self.recDist = 0
+        self.moveDiv = 30
+        self.moveList = []
         self.textW = 20
         self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\GlacialIndifference-Regular.otf'), self.textW)
+
+    def move(self):
+        if self.moveDist != 0:
+            self.moveList = [[self.crtX, self.crtY, self.cell]]
+            self.moveI, self.moveJ = 0, 1
+            self.recDist = self.moveDist
+            self.moving = True
+            while self.moveDist != 0:
+                self.moveX, self.moveY = self.dirList[self.moveDir][0], self.dirList[self.moveDir][1]
+                try:
+                    newX, newY = self.crtX + self.moveX, self.crtY + self.moveY
+                    kCell = self.cellOrg[newY][newX]
+                    if newY < 0 or newX < 0:
+                        b = 1 / 0
+                    a = 1 / (kCell + 1) # testing if the cell is -1
+                except:
+                    if self.moveDir == 0:
+                        if self.crtX == 0:
+                            self.moveDir = 1
+                        elif self.crtX == main.size - 1:
+                            self.moveDir = 3
+                        elif self.crtX == 2 * main.size - 2:
+                            self.moveDir = 5
+                        elif self.crtX < main.size - 1:
+                            self.moveDir = 2
+                        else:
+                            self.moveDir = 4
+                    elif self.moveDir == 1:
+                        if self.crtY == 0:
+                            self.moveDir = 2
+                        elif self.crtY == main.size - 1:
+                            self.moveDir = 4
+                        elif self.crtY == 2 * main.size - 2:
+                            self.moveDir = 0
+                        elif self.crtY < main.size - 1:
+                            self.moveDir = 3
+                        else:
+                            self.moveDir = 5
+                    elif self.moveDir == 2:
+                        if self.crtY == main.size - 1:
+                            self.moveDir = 3
+                        elif self.crtY == 2 * main.size - 2 and self.crtX == 2 * main.size - 2:
+                            self.moveDir = 5
+                        elif self.crtX == main.size - 1:
+                            self.moveDir = 1
+                        elif self.crtY < 2 * main.size - 2:
+                            self.moveDir = 4
+                        else:
+                            self.moveDir = 0
+                    elif self.moveDir == 3:
+                        if self.crtX == 0:
+                            self.moveDir = 2
+                        elif self.crtX == main.size - 1:
+                            self.moveDir = 0
+                        elif self.crtX == 2 * main.size - 2:
+                            self.moveDir = 4
+                        elif self.crtX < main.size - 1:
+                            self.moveDir = 1
+                        else:
+                            self.moveDir = 5
+                    elif self.moveDir == 4:
+                        if self.crtY == 0:
+                            self.moveDir = 3
+                        elif self.crtY == main.size - 1:
+                            self.moveDir = 1
+                        elif self.crtY == 2 * main.size - 2:
+                            self.moveDir = 5
+                        elif self.crtY < main.size - 1:
+                            self.moveDir = 2
+                        else:
+                            self.moveDir = 0
+                    elif self.moveDir == 5:
+                        if self.crtY == main.size - 1:
+                            self.moveDir = 0
+                        elif self.crtY == 0 and self.crtX == 0:
+                            self.moveDir = 2
+                        elif self.crtX == main.size - 1:
+                            self.moveDir = 4
+                        elif self.crtY > 0:
+                            self.moveDir = 1
+                        else:
+                            self.moveDir = 3
+                    continue
+                self.crtX, self.crtY = newX, newY
+                self.cell = self.cellOrg[self.crtY][self.crtX]
+                self.moveList.append([main.board.cells[self.cell].x, main.board.cells[self.cell].y])
+                self.moveDist -= 1
+        if self.moving:
+            self.X = self.origX + self.moveJ * (self.moveList[self.moveI + 1][0] - self.origX) // self.moveDiv
+            self.Y = self.origY + self.moveJ * (self.moveList[self.moveI + 1][1] - self.origY) // self.moveDiv
+            self.moveJ += 1
+            if self.moveJ > self.moveDiv:
+                self.moveI += 1
+                self.moveJ = 1
+                self.origX, self.origY = self.moveList[self.moveI][0], self.moveList[self.moveI][1]
+            if self.moveI >= self.recDist:
+                self.moving = False
+            
     def draw(self, scr, position, turn):
-        X,Y=main.board.cells[self.cell].x,main.board.cells[self.cell].y
-        size=main.board.cSize
+        size = main.board.cSize
         margin=size//6
-        pointList=[((X-margin//2,Y-margin//(3**0.5/2+0.5)),
-                        (X - size * 3 ** 0.5 // 2 +margin//1.2,Y - size // 2),
-                        (X-margin//2, Y - size+margin//(3**0.5/2+0.5))),
-                   ((X-margin//1.1,Y),
-                        (X-size * 3 ** 0.5 // 2+margin//2, Y+size // 2-margin//(3**0.5/2+0.5)),
-                        ((X-size * 3 ** 0.5 // 2+margin//2, Y-size // 2+margin//(3**0.5/2+0.5)))),
-                   ((X-margin//2,Y + margin//(3**0.5/2+0.5)),
-                        (X - size * 3 ** 0.5 // 2 +margin//1.2,Y + size // 2),
-                        (X-margin//2, Y + size - margin//(3**0.5/2+0.5))),
-                   ((X + margin//2,Y + margin//(3**0.5/2+0.5)),
-                        (X + size * 3 ** 0.5 // 2 - margin//1.2,Y + size // 2),
-                        (X + margin//2, Y + size - margin//(3**0.5/2+0.5))),
-                   ((X + margin//1.1,Y),
-                        (X + size * 3 ** 0.5 // 2 - margin//2, Y+size // 2-margin//(3**0.5/2+0.5)),
-                        ((X + size * 3 ** 0.5 // 2 - margin//2, Y-size // 2+margin//(3**0.5/2+0.5)))),
-                   ((X + margin//2,Y-margin//(3**0.5/2+0.5)),
-                        (X + size * 3 ** 0.5 // 2 - margin//1.2,Y - size // 2),
-                        (X + margin//2, Y - size+margin//(3**0.5/2+0.5)))
+        pointList=[((self.X-margin//2,self.Y-margin//(3**0.5/2+0.5)),
+                        (self.X - size * 3 ** 0.5 // 2 +margin//1.2,self.Y - size // 2),
+                        (self.X-margin//2, self.Y - size+margin//(3**0.5/2+0.5))),
+                   ((self.X-margin//1.1,self.Y),
+                        (self.X-size * 3 ** 0.5 // 2 + margin//2, self.Y+size // 2-margin//(3**0.5/2+0.5)),
+                        ((self.X-size * 3 ** 0.5 // 2+margin//2, self.Y-size // 2+margin//(3**0.5/2+0.5)))),
+                   ((self.X-margin//2,self.Y + margin//(3**0.5/2+0.5)),
+                        (self.X - size * 3 ** 0.5 // 2 +margin//1.2,self.Y + size // 2),
+                        (self.X-margin//2, self.Y + size - margin//(3**0.5/2+0.5))),
+                   ((self.X + margin//2,self.Y + margin//(3**0.5/2+0.5)),
+                        (self.X + size * 3 ** 0.5 // 2 - margin//1.2,self.Y + size // 2),
+                        (self.X + margin//2, self.Y + size - margin//(3**0.5/2+0.5))),
+                   ((self.X + margin//1.1,self.Y),
+                        (self.X + size * 3 ** 0.5 // 2 - margin//2, self.Y+size // 2-margin//(3**0.5/2+0.5)),
+                        ((self.X + size * 3 ** 0.5 // 2 - margin//2, self.Y-size // 2+margin//(3**0.5/2+0.5)))),
+                   ((self.X + margin//2,self.Y-margin//(3**0.5/2+0.5)),
+                        (self.X + size * 3 ** 0.5 // 2 - margin//1.2,self.Y - size // 2),
+                        (self.X + margin//2, self.Y - size+margin//(3**0.5/2+0.5)))
                    ]
         triSurface = pygame.Surface((SCREEN_W, SCREEN_H), pygame.SRCALPHA)
         pygame.draw.polygon(triSurface, self.color,pointList[position-1])
@@ -93,8 +206,9 @@ class CLS_player(object):
             
 # Class of Cells:
 class CLS_Cell(object):
-    def __init__(self, x, y, cSize, cellType, name, price, cColor, bColor, stType, img, tColor):
+    def __init__(self, x, y, cIndex, cSize, cellType, name, price, cColor, bColor, stType, img, tColor):
         self.x, self.y = x, y
+        self.cIndex = cIndex
         self.cSize = cSize
         self.cellType = cellType
         self.name, self.price, self.cColor, self.bColor = name, price, cColor, bColor
@@ -103,10 +217,35 @@ class CLS_Cell(object):
         self.tColor = tColor
         self.stType = stType
         self.img = img
+        self.shining = False
+        self.colorDiv = 20
+        self.current_color = self.cColor
+        self.orig_color = self.cColor
+        self.aim_color = self.cColor
+        self.transI = 1
 
     def draw(self, scr):
+        if main.playerList[main.current_player].cell == self.cIndex:
+            if not self.shining:
+                self.current_color = self.cColor
+                self.aim_color = main.playerList[main.current_player].nameColor
+                self.transI = 1
+                self.shining = True
+        if self.shining:
+            self.current_color = (self.orig_color[0] + self.transI * (self.aim_color[0] - self.orig_color[0]) // self.colorDiv, \
+                                  self.orig_color[1] + self.transI * (self.aim_color[1] - self.orig_color[1]) // self.colorDiv, \
+                                  self.orig_color[2] + self.transI * (self.aim_color[2] - self.orig_color[2]) // self.colorDiv)
+            self.transI += 1
+            if self.transI > self.colorDiv:
+                self.transI = 1
+                self.current_color, self.aim_color = self.aim_color, self.orig_color
+                self.orig_color = self.current_color
+        if main.playerList[main.current_player].cell != self.cIndex and self.shining:
+            self.shining = False
+            self.current_color = self.cColor
+            
         if self.stType == 1:
-            pygame.draw.polygon(scr, self.cColor, ((self.x, self.y + self.cSize), #Bottom
+            pygame.draw.polygon(scr, self.current_color, ((self.x, self.y + self.cSize), #Bottom
                                                    (self.x - self.cSize * 3 ** 0.5 // 2, self.y + self.cSize // 2), #Lower Left
                                                    (self.x - self.cSize * 3 ** 0.5 // 2, self.y - self.cSize // 2), #Upper Left
                                                    (self.x, self.y - self.cSize), #Top
@@ -130,7 +269,7 @@ class CLS_Cell(object):
                 scr.blit(self.font.render('$' + str(self.price), True, self.cColor),
                          (self.x - self.font.size('$' + str(self.price))[0] // 2, self.y + self.cSize // 3))
         elif self.stType == 2:
-            pygame.draw.polygon(scr, self.cColor, ((self.x, self.y + self.cSize),
+            pygame.draw.polygon(scr, self.current_color, ((self.x, self.y + self.cSize),
                                                    (self.x - self.cSize * 3 ** 0.5 // 2, self.y + self.cSize // 2),
                                                    (self.x - self.cSize * 3 ** 0.5 // 2, self.y - self.cSize // 2),
                                                    (self.x, self.y - self.cSize),
@@ -162,6 +301,22 @@ class CLS_Board(object):
         self.cSize = (SCREEN_H - 60) // (self.size * 3 - 1)
         self.indices = list(range(self.cellNum))
         self.distribution = [0] * self.cellNum
+        self.cellOrganization = []
+        cCell = 0
+        for i in range(self.size):
+            cellLine = []
+            for j in range(self.size + i):
+                cellLine.append(cCell)
+                cCell += 1
+            self.cellOrganization.append(cellLine)
+        for i in range(self.size - 1):
+            cellLine = []
+            for j in range(i + 1):
+                cellLine.append(-1)
+            for j in range(self.size * 2 - i - 2):
+                cellLine.append(cCell)
+                cCell += 1
+            self.cellOrganization.append(cellLine)
 
         self.elec_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\elec_company.png'))
         self.elec_pic = pygame.transform.scale(self.elec_pic, (self.cSize, self.cSize))
@@ -267,11 +422,11 @@ class CLS_Board(object):
                 self.cY = SCREEN_H // 2 + 3 * (self.cLayer - self.size + 1) * (self.cSize + 1) // 2
             info = self.distribution[i]
             if type(info) == type([114, 124]):
-                newCell = CLS_Cell(self.cX, self.cY, self.cSize, 'country', self.countries[info[0]][info[1]],
+                newCell = CLS_Cell(self.cX, self.cY, i, self.cSize, 'country', self.countries[info[0]][info[1]],
                                    self.prices[info[0]][info[1]], self.colors[info[0]], self.infoDic['country'][2], 1,
                                    self.flags[info[0]][info[1]], -1)
             else:
-                newCell = CLS_Cell(self.cX, self.cY, self.cSize, info, self.infoDic[info][3], self.infoDic[info][4],
+                newCell = CLS_Cell(self.cX, self.cY, i, self.cSize, info, self.infoDic[info][3], self.infoDic[info][4],
                                    self.infoDic[info][1], self.infoDic[info][2], self.infoDic[info][0],
                                    self.infoDic[info][5], self.infoDic[info][6])
 
@@ -322,6 +477,90 @@ class CLS_Button(object):
             scr.blit(crtPic, (self.posX, self.posY))
 
 
+class CLS_Spinner(object):
+    def __init__(self, posX, posY, size, borderColor, innerColor, lineColor, divisions, tList, spinnerId, handStat):
+        self.posX, self.posY = posX, posY
+        self.size = size
+        self.borderColor, self.innerColor, self.lineColor = borderColor, innerColor, lineColor
+        self.divisions = divisions
+        self.tList = tList
+        self.spinnerId = spinnerId
+        self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\GlacialIndifference-Regular.otf'), self.size // 4)
+
+        self.handStat = 0
+        self.handAngle = 0
+        self.speed = random.random() / 5 + 1 / 2
+        self.deceleration = random.random() / 240 + 1 / 120
+        self.dir, self.dist = 0, 0
+
+    def draw(self, scr):
+        pygame.draw.circle(scr, self.borderColor, (self.posX, self.posY), self.size)
+        pygame.draw.circle(scr, self.innerColor, (self.posX, self.posY), self.size * 19 // 20)
+        for i in range(self.divisions):
+            pygame.draw.line(scr, self.lineColor, (self.posX, self.posY), \
+                             (self.posX + self.size * 19 * math.sin(2 * math.pi * i / self.divisions) // 20, \
+                              self.posY - self.size * 19 * math.cos(2 * math.pi * i / self.divisions) // 20))
+        if self.spinnerId == 0:
+            for i in range(self.divisions):
+                pygame.draw.polygon(scr, self.lineColor, \
+                                    ((self.posX + self.size * math.sin(2 * math.pi * (i + 0.5) / self.divisions) // 4, \
+                                     self.posY - self.size * math.cos(2 * math.pi * (i + 0.5) / self.divisions) // 4), \
+                                    (self.posX + 2 * self.size * math.sin(2 * math.pi * (i + 0.55) / self.divisions) // 3, \
+                                     self.posY - 2 * self.size * math.cos(2 * math.pi * (i + 0.55) / self.divisions) // 3), \
+                                    (self.posX + 2 * self.size * math.sin(2 * math.pi * (i + 0.45) / self.divisions) // 3, \
+                                     self.posY - 2 * self.size * math.cos(2 * math.pi * (i + 0.45) / self.divisions) // 3)))
+                pygame.draw.polygon(scr, self.lineColor, \
+                                    ((self.posX + 4 * self.size * math.sin(2 * math.pi * (i + 0.5) / self.divisions) // 5, \
+                                     self.posY - 4 * self.size * math.cos(2 * math.pi * (i + 0.5) / self.divisions) // 5), \
+                                    (self.posX + 2 * self.size * math.sin(2 * math.pi * (i + 0.6) / self.divisions) // 3, \
+                                     self.posY - 2 * self.size * math.cos(2 * math.pi * (i + 0.6) / self.divisions) // 3), \
+                                    (self.posX + 2 * self.size * math.sin(2 * math.pi * (i + 0.4) / self.divisions) // 3, \
+                                     self.posY - 2 * self.size * math.cos(2 * math.pi * (i + 0.4) / self.divisions) // 3)))                
+        elif self.spinnerId == 1:
+            for i in range(self.divisions):
+                scr.blit(self.font.render(self.tList[i], True, self.lineColor), \
+                         (self.posX + 2 * self.size * math.sin(2 * math.pi * (i + 0.5) / self.divisions) // 3 - self.font.size(self.tList[i])[0] // 2, \
+                          self.posY - 2 * self.size * math.cos(2 * math.pi * (i + 0.5) / self.divisions) // 3 - self.font.size(self.tList[i])[1] // 2))
+        if self.handStat == 1 and self.speed < 0:
+            self.speed = random.random() / 5 + 1 / 2
+            self.deceleration = random.random() / 240 + 1 / 120
+            self.handStat = 0
+            if self.spinnerId == 0:
+                self.dir = round(((self.handAngle + math.pi / 2) % (2 * math.pi)) // (2 * math.pi / self.divisions))
+            if self.spinnerId == 1:
+                self.dist = eval(self.tList[round(((self.handAngle + math.pi / 2) % (2 * math.pi)) // (2 * math.pi / self.divisions))])
+        if self.handStat == 1:
+            self.handAngle += self.speed
+            self.speed -= self.deceleration
+        pygame.draw.polygon(scr, self.borderColor, \
+                            ((self.posX - self.size * math.cos(-self.handAngle) // 8, self.posY + self.size * math.sin(-self.handAngle) // 8), \
+                             (self.posX - self.size * math.sin(-self.handAngle) // 8, self.posY - self.size * math.cos(-self.handAngle) // 8), \
+                             (self.posX + self.size * math.cos(-self.handAngle + math.pi / 16) // 8, self.posY - self.size * math.sin(-self.handAngle + math.pi / 16) // 8), \
+                             (self.posX + self.size * math.cos(-self.handAngle + math.pi / 16) // 2, self.posY - self.size * math.sin(-self.handAngle + math.pi / 16) // 2), \
+                             (self.posX + 2 * self.size * math.cos(-self.handAngle) // 3, self.posY - 2 * self.size * math.sin(-self.handAngle) // 3), \
+                             (self.posX + self.size * math.cos(-self.handAngle - math.pi / 16) // 2, self.posY - self.size * math.sin(-self.handAngle - math.pi / 16) // 2), \
+                             (self.posX + self.size * math.cos(-self.handAngle - math.pi / 16) // 8, self.posY - self.size * math.sin(-self.handAngle - math.pi / 16) // 8), \
+                             (self.posX + self.size * math.sin(-self.handAngle) // 8, self.posY + self.size * math.cos(-self.handAngle) // 8)))
+        pygame.draw.polygon(scr, self.lineColor, \
+                            ((self.posX - self.size * math.cos(-self.handAngle) // 12, self.posY + self.size * math.sin(-self.handAngle) // 12), \
+                             (self.posX - self.size * math.sin(-self.handAngle) // 12, self.posY - self.size * math.cos(-self.handAngle) // 12), \
+                             (self.posX + self.size * math.cos(-self.handAngle + math.pi / 22) // 12, self.posY - self.size * math.sin(-self.handAngle + math.pi / 22) // 12), \
+                             (self.posX + self.size * math.cos(-self.handAngle + math.pi / 22) // 2, self.posY - self.size * math.sin(-self.handAngle + math.pi / 22) // 2), \
+                             (self.posX + 3 * self.size * math.cos(-self.handAngle) // 5, self.posY - 3 * self.size * math.sin(-self.handAngle) // 5), \
+                             (self.posX + self.size * math.cos(-self.handAngle - math.pi / 22) // 2, self.posY - self.size * math.sin(-self.handAngle - math.pi / 22) // 2), \
+                             (self.posX + self.size * math.cos(-self.handAngle - math.pi / 22) // 12, self.posY - self.size * math.sin(-self.handAngle - math.pi / 22) // 12), \
+                             (self.posX + self.size * math.sin(-self.handAngle) // 12, self.posY + self.size * math.cos(-self.handAngle) // 12)))
+        pygame.draw.polygon(scr, (250, 245, 255), \
+                            ((self.posX - self.size * math.cos(-self.handAngle) // 12, self.posY + self.size * math.sin(-self.handAngle) // 12), \
+                             (self.posX - self.size * math.sin(-self.handAngle) // 12, self.posY - self.size * math.cos(-self.handAngle) // 12), \
+                             (self.posX + self.size * math.cos(-self.handAngle) // 12, self.posY - self.size * math.sin(-self.handAngle) // 12), \
+                             (self.posX + self.size * math.sin(-self.handAngle) // 12, self.posY + self.size * math.cos(-self.handAngle) // 12)))
+        pygame.draw.polygon(scr, (250, 215, 255), \
+                            ((self.posX + self.size * math.cos(-self.handAngle) // 6, self.posY - self.size * math.sin(-self.handAngle) // 6), \
+                             (self.posX + self.size * math.cos(-self.handAngle + math.pi / 30) // 2, self.posY - self.size * math.sin(-self.handAngle + math.pi / 30) // 2), \
+                             (self.posX + 4 * self.size * math.cos(-self.handAngle) // 7, self.posY - 4 * self.size * math.sin(-self.handAngle) // 7), \
+                             (self.posX + self.size * math.cos(-self.handAngle - math.pi / 30) // 2, self.posY - self.size * math.sin(-self.handAngle - math.pi / 30) // 2)))
+
 class FW_Main(object):
     # Status:
     # 0: Entering board size
@@ -332,7 +571,7 @@ class FW_Main(object):
     def __init__(self):
         # Initialization of Players
         self.playerList = []
-        self.plyTransparentColorList=[(255, 0, 0, 128), (255, 128, 0, 128), (255, 255, 0, 128), (0, 255, 0, 128), (0, 0, 255, 128), (200, 0, 255, 128)]
+        self.plyTransparentColorList=[(255, 0, 0, 176), (255, 128, 0, 176), (255, 255, 0, 176), (0, 255, 0, 176), (0, 0, 255, 176), (200, 0, 255, 176)]
         self.plyColorList = [(255, 0, 0), (255, 128, 0), (255, 255, 0), (0, 255, 0), (0, 0, 255), (200, 0, 255)]
         self.plyDieColorList = [(128, 0, 0), (128, 64, 0), (128, 128, 0), (0, 128, 0), (0, 0, 128), (100, 0, 128)]
         # Initialization of countries
@@ -370,6 +609,8 @@ class FW_Main(object):
         self.spin_button_w, self.spin_button_h = 75, 30
         self.end_turn_button_w, self.end_turn_button_h = 100, 30
         self.spinner_r = 70
+        self.spinner_border_color, self.spinner_color, self.spinner_line_color = (81, 44, 102), (214, 189, 222), (124, 59, 144)
+        self.spinner_hand_w, self.spinner_hand_h = 12, 114
 
         self.spin_button_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\spin_button_2.png'))
         self.spin_button_pic = pygame.transform.scale(self.spin_button_pic, (self.spin_button_w, self.spin_button_h))
@@ -383,10 +624,19 @@ class FW_Main(object):
         self.end_turn_button_pressed_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\end_turn_button_1.png'))
         self.end_turn_button_pressed_pic = pygame.transform.scale(self.end_turn_button_pressed_pic, (self.end_turn_button_w, self.end_turn_button_h))
         self.end_turn_button_pressed_pic.set_colorkey((255, 255, 255))
-
-        self.spin_button_1 = CLS_Button(self.spin_button_pic, self.spin_button_pressed_pic, SCREEN_W - 3 * self.spinner_r - 20 - self.spin_button_w // 2, 30 + 2 * self.spinner_r, 1, self.spin_button_w, self.spin_button_h, 0)
-        self.spin_button_2 = CLS_Button(self.spin_button_pic, self.spin_button_pressed_pic, SCREEN_W - self.spinner_r - 10 - self.spin_button_w // 2, 30 + 2 * self.spinner_r, 1, self.spin_button_w, self.spin_button_h, 0)
-        self.end_turn_button = CLS_Button(self.end_turn_button_pic, self.end_turn_button_pressed_pic, SCREEN_W - 2 * self.spinner_r - 15 - self.end_turn_button_w // 2, 50 + self.spin_button_h + 2 * self.spinner_r, 1, self.end_turn_button_w, self.end_turn_button_h, 1)
+        
+        self.spin_button_1 = CLS_Button(self.spin_button_pic, self.spin_button_pressed_pic, \
+                                        SCREEN_W - 3 * self.spinner_r - 20 - self.spin_button_w // 2, 30 + 2 * self.spinner_r, 1, \
+                                        self.spin_button_w, self.spin_button_h, 0)
+        self.spin_button_2 = CLS_Button(self.spin_button_pic, self.spin_button_pressed_pic, \
+                                        SCREEN_W - self.spinner_r - 10 - self.spin_button_w // 2, 30 + 2 * self.spinner_r, 1, \
+                                        self.spin_button_w, self.spin_button_h, 0)
+        self.end_turn_button = CLS_Button(self.end_turn_button_pic, self.end_turn_button_pressed_pic, \
+                                          SCREEN_W - 2 * self.spinner_r - 15 - self.end_turn_button_w // 2, 50 + self.spin_button_h + 2 * self.spinner_r, 1, \
+                                          self.end_turn_button_w, self.end_turn_button_h, 1)
+        self.spinner_1 = CLS_Spinner(SCREEN_W - 3 * self.spinner_r - 20, 20 + self.spinner_r, \
+                                     self.spinner_r, self.spinner_border_color, self.spinner_color, self.spinner_line_color, \
+                                     6, [], 0, 0)
         
         self.stat = 0
         self.nameLen = 20
@@ -419,15 +669,24 @@ class FW_Main(object):
                               (SCREEN_H - self.font.size(''.join(self.nameChar))[1]) // 2))
         if self.stat == 3:
             self.board.draw(self.screen)
-            posList=[0]*self.board.cellNum
             for player in self.playerList:
-                player.draw(self.screen, posList[player.cell] + 1, self.current_player)
-                posList[player.cell] += 1
+                player.move()
+                player.draw(self.screen, player.pIndex + 1, self.current_player)
 
         if self.stat == 3:
             self.spin_button_1.draw(self.screen)
             self.spin_button_2.draw(self.screen)
             self.end_turn_button.draw(self.screen)
+
+        if self.stat == 3:
+            self.spinner_1.draw(self.screen)
+            self.spinner_2.draw(self.screen)
+
+        if self.stat == 3 and self.end_turn_button.doneStat == 1:
+            if self.spin_button_1.doneStat == 1 and self.spinner_1.handStat == 0:
+                if self.spin_button_2.doneStat == 1 and self.spinner_2.handStat == 0:
+                    self.playerList[self.current_player].moveDir, self.playerList[self.current_player].moveDist = self.spinner_1.dir, self.spinner_2.dist
+                    self.end_turn_button.doneStat = 0
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -441,6 +700,13 @@ class FW_Main(object):
                         self.stat = 1
                         self.size = int(self.sizeChar)
                         self.board = CLS_Board(self.size, self.countries, self.prices, self.colors)
+                        integerList = []
+                        for i in range(self.size):
+                            integerList.append(str(i + 1))
+                        integerList = random.sample(integerList, self.size)
+                        self.spinner_2 = CLS_Spinner(SCREEN_W - self.spinner_r - 10, 20 + self.spinner_r, \
+                                                     self.spinner_r, self.spinner_border_color, self.spinner_color, self.spinner_line_color, \
+                                                     self.size, integerList, 1, 0)
                     if self.stat == 1:
                         if self.pChar == '_' or int(self.pChar) > 6:
                             continue
@@ -455,7 +721,7 @@ class FW_Main(object):
                                 continue
                             self.names.append(''.join(self.nameChar).strip('_'))
                         else:
-                            if self.nameChar == '_':
+                            if self.nameChar[-1] == '_':
                                 continue
                             if ''.join(self.nameChar).strip('_') in self.names:
                                 continue
@@ -489,12 +755,10 @@ class FW_Main(object):
             if event.type == pygame.MOUSEBUTTONDOWN and self.stat == 3:
                 if self.spin_button_1.doneStat == 0 and self.spin_button_1.pressedStat == 1:
                     self.spin_button_1.doneStat = 1
-                    if self.spin_button_2.doneStat == 1:
-                        self.end_turn_button.doneStat = 0
+                    self.spinner_1.handStat = 1
                 if self.spin_button_2.doneStat == 0 and self.spin_button_2.pressedStat == 1:
                     self.spin_button_2.doneStat = 1
-                    if self.spin_button_1.doneStat == 1:
-                        self.end_turn_button.doneStat = 0
+                    self.spinner_2.handStat = 1
                 if self.end_turn_button.doneStat == 0 and self.end_turn_button.pressedStat == 1:
                     self.current_player = (self.current_player + 1) % self.pNum
                     self.end_turn_button.doneStat = 1
