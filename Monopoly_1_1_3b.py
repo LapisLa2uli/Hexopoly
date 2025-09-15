@@ -1,4 +1,4 @@
-# MONOPOLY Version 1.1.3c
+# MONOPOLY Version 1.1.3b
 
 """
 Version Updates:
@@ -27,7 +27,6 @@ Version Updates:
 1.1.2f Playable Spinner Visualization
 1.1.3a Avatar Moving
 1.1.3b Avatar Moving Animation
-1.1.3c Grid Shining Animation
 """
 
 import pygame, sys, numpy, random, math, time, os
@@ -206,9 +205,8 @@ class CLS_player(object):
             
 # Class of Cells:
 class CLS_Cell(object):
-    def __init__(self, x, y, cIndex, cSize, cellType, name, price, cColor, bColor, stType, img, tColor):
+    def __init__(self, x, y, cSize, cellType, name, price, cColor, bColor, stType, img, tColor):
         self.x, self.y = x, y
-        self.cIndex = cIndex
         self.cSize = cSize
         self.cellType = cellType
         self.name, self.price, self.cColor, self.bColor = name, price, cColor, bColor
@@ -217,35 +215,10 @@ class CLS_Cell(object):
         self.tColor = tColor
         self.stType = stType
         self.img = img
-        self.shining = False
-        self.colorDiv = 20
-        self.current_color = self.cColor
-        self.orig_color = self.cColor
-        self.aim_color = self.cColor
-        self.transI = 1
 
     def draw(self, scr):
-        if main.playerList[main.current_player].cell == self.cIndex:
-            if not self.shining:
-                self.current_color = self.cColor
-                self.aim_color = main.playerList[main.current_player].nameColor
-                self.transI = 1
-                self.shining = True
-        if self.shining:
-            self.current_color = (self.orig_color[0] + self.transI * (self.aim_color[0] - self.orig_color[0]) // self.colorDiv, \
-                                  self.orig_color[1] + self.transI * (self.aim_color[1] - self.orig_color[1]) // self.colorDiv, \
-                                  self.orig_color[2] + self.transI * (self.aim_color[2] - self.orig_color[2]) // self.colorDiv)
-            self.transI += 1
-            if self.transI > self.colorDiv:
-                self.transI = 1
-                self.current_color, self.aim_color = self.aim_color, self.orig_color
-                self.orig_color = self.current_color
-        if main.playerList[main.current_player].cell != self.cIndex and self.shining:
-            self.shining = False
-            self.current_color = self.cColor
-            
         if self.stType == 1:
-            pygame.draw.polygon(scr, self.current_color, ((self.x, self.y + self.cSize), #Bottom
+            pygame.draw.polygon(scr, self.cColor, ((self.x, self.y + self.cSize), #Bottom
                                                    (self.x - self.cSize * 3 ** 0.5 // 2, self.y + self.cSize // 2), #Lower Left
                                                    (self.x - self.cSize * 3 ** 0.5 // 2, self.y - self.cSize // 2), #Upper Left
                                                    (self.x, self.y - self.cSize), #Top
@@ -269,7 +242,7 @@ class CLS_Cell(object):
                 scr.blit(self.font.render('$' + str(self.price), True, self.cColor),
                          (self.x - self.font.size('$' + str(self.price))[0] // 2, self.y + self.cSize // 3))
         elif self.stType == 2:
-            pygame.draw.polygon(scr, self.current_color, ((self.x, self.y + self.cSize),
+            pygame.draw.polygon(scr, self.cColor, ((self.x, self.y + self.cSize),
                                                    (self.x - self.cSize * 3 ** 0.5 // 2, self.y + self.cSize // 2),
                                                    (self.x - self.cSize * 3 ** 0.5 // 2, self.y - self.cSize // 2),
                                                    (self.x, self.y - self.cSize),
@@ -422,11 +395,11 @@ class CLS_Board(object):
                 self.cY = SCREEN_H // 2 + 3 * (self.cLayer - self.size + 1) * (self.cSize + 1) // 2
             info = self.distribution[i]
             if type(info) == type([114, 124]):
-                newCell = CLS_Cell(self.cX, self.cY, i, self.cSize, 'country', self.countries[info[0]][info[1]],
+                newCell = CLS_Cell(self.cX, self.cY, self.cSize, 'country', self.countries[info[0]][info[1]],
                                    self.prices[info[0]][info[1]], self.colors[info[0]], self.infoDic['country'][2], 1,
                                    self.flags[info[0]][info[1]], -1)
             else:
-                newCell = CLS_Cell(self.cX, self.cY, i, self.cSize, info, self.infoDic[info][3], self.infoDic[info][4],
+                newCell = CLS_Cell(self.cX, self.cY, self.cSize, info, self.infoDic[info][3], self.infoDic[info][4],
                                    self.infoDic[info][1], self.infoDic[info][2], self.infoDic[info][0],
                                    self.infoDic[info][5], self.infoDic[info][6])
 
@@ -669,9 +642,11 @@ class FW_Main(object):
                               (SCREEN_H - self.font.size(''.join(self.nameChar))[1]) // 2))
         if self.stat == 3:
             self.board.draw(self.screen)
+            posList=[0]*self.board.cellNum
             for player in self.playerList:
                 player.move()
-                player.draw(self.screen, player.pIndex + 1, self.current_player)
+                player.draw(self.screen, posList[player.cell] + 1, self.current_player)
+                posList[player.cell] += 1
 
         if self.stat == 3:
             self.spin_button_1.draw(self.screen)
