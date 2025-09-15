@@ -6,6 +6,8 @@
 
 -   Added shining animation to current player's grid
 
+-   Added money input page
+
 **Sep 14, 2025**
 
 -   Added movement of avatars

@@ -1,33 +1,47 @@
-# MONOPOLY Version 1.1.3c
+# MONOPOLY Version 1.1.4b
 
 """
 Version Updates:
 
-1.0 Initialization
+----- 1.0 Initialization -----
 
 1.0.1 Initialized countries and their corresponding colors
+
 1.0.2 Pygame cell creation (country, color, price)
+
 1.0.3 Framework organization (code visual)
+
 1.0.4 Board Setup
+
 1.0.5 Start Cell
+
 1.0.6 More Cells
+
 1.0.7 Better Visual
+
 1.0.8 Size, Player Input and Jail Adjustment
+
 1.0.9 Cell Picture Insertion
 
-1.1 Game-Play Setup
+----- 1.1 Game-Play Setup -----
 
 1.1.0 Reorganized Path
+
 1.1.1 Player Name Input
+
 1.1.2a Player Avatar
 1.1.2b Player Name Display
 1.1.2c Button Display
 1.1.2d Player Turn Setup
 1.1.2e Spinner Display
 1.1.2f Playable Spinner Visualization
+
 1.1.3a Avatar Moving
 1.1.3b Avatar Moving Animation
 1.1.3c Grid Shining Animation
+
+1.1.4a Money Count Display
+1.1.4b Money Input
 """
 
 import pygame, sys, numpy, random, math, time, os
@@ -48,7 +62,7 @@ class CLS_player(object):
                     \      /
                        \/
     '''
-    def __init__(self, pIndex, startCell, nameColor, color, dieColor, name, lifeStat):
+    def __init__(self, pIndex, startCell, nameColor, color, dieColor, name, lifeStat, money):
         self.pIndex = pIndex
         self.cell = startCell
         self.crtX, self.crtY = main.size - 1, main.size - 1
@@ -59,6 +73,7 @@ class CLS_player(object):
         self.dieColor = dieColor
         self.name = name
         self.lifeStat = lifeStat
+        self.money = money
         self.moveDir, self.moveDist = 0, 0
         self.moving = False
         self.dirList = [[0, -1], [1, 0], [1, 1], [0, 1], [-1, 0], [-1, -1]]
@@ -196,6 +211,7 @@ class CLS_player(object):
         if self.lifeStat == 0:
             pygame.draw.rect(scr, self.dieColor, pygame.Rect(10, SCREEN_H - (6 - self.pIndex) * (self.textW + 10), 50, self.textW))
             scr.blit(self.font.render(self.name, True, (122, 112, 128)), (70, SCREEN_H - (6 - self.pIndex) * (self.textW + 10)))
+            scr.blit(self.font.render('$' + str(self.money), True, (160, 96, 96)), (80 + self.font.size(self.name)[0], SCREEN_H - (6 - self.pIndex) * (self.textW + 10)))
         else:
             if turn == self.pIndex:
                 pygame.draw.rect(scr, (255, 255, 255), pygame.Rect(10, SCREEN_H - (6 - self.pIndex) * (self.textW + 10), 50, self.textW))
@@ -203,6 +219,7 @@ class CLS_player(object):
             else:
                 pygame.draw.rect(scr, self.nameColor, pygame.Rect(10, SCREEN_H - (6 - self.pIndex) * (self.textW + 10), 50, self.textW))
             scr.blit(self.font.render(self.name, True, (245, 225, 255)), (70, SCREEN_H - (6 - self.pIndex) * (self.textW + 10)))
+            scr.blit(self.font.render('$' + str(self.money), True, (150, 215, 150)), (80 + self.font.size(self.name)[0], SCREEN_H - (6 - self.pIndex) * (self.textW + 10)))
             
 # Class of Cells:
 class CLS_Cell(object):
@@ -574,9 +591,10 @@ class CLS_Spinner(object):
 class FW_Main(object):
     # Status:
     # 0: Entering board size
-    # 1: Entering number of players
-    # 2: Entering names of players
-    # 3: Game starts
+    # 1: Entering Starting Money
+    # 2: Entering number of players
+    # 3: Entering names of players
+    # 4: Game starts
 
     def __init__(self):
         # Initialization of Players
@@ -650,8 +668,10 @@ class FW_Main(object):
         
         self.stat = 0
         self.nameLen = 20
-        self.sizeChar, self.pChar, self.nameChar = '_', '_', list('_' * self.nameLen)
+        self.moneyLen = 5
+        self.sizeChar, self.moneyChar, self.pChar, self.nameChar = '_', ['_'] * self.moneyLen, '_', list('_' * self.nameLen)
         self.pNum = 0
+        self.origMoney = 5000
         self.neStat = 0
         self.names = []
 
@@ -666,33 +686,39 @@ class FW_Main(object):
                              ((SCREEN_W - self.font.size(self.sizeChar)[0]) // 2,
                               (SCREEN_H - self.font.size(self.sizeChar)[1]) // 2))
         if self.stat == 1:
+            self.screen.blit(self.font.render('Enter Starting Money (2000 ~ 20000)', True, (250, 230, 210)),
+                             ((SCREEN_W - self.font.size('Enter Starting Money (2000 ~ 20000)')[0]) // 2, 30))
+            self.screen.blit(self.font.render(''.join(self.moneyChar), True, (220, 210, 250)),
+                             ((SCREEN_W - self.font.size(''.join(self.moneyChar))[0]) // 2,
+                              (SCREEN_H - self.font.size(''.join(self.moneyChar))[1]) // 2))
+        if self.stat == 2:
             self.screen.blit(self.font.render('Enter Number of Players (2 ~ 6)', True, (250, 230, 210)),
                              ((SCREEN_W - self.font.size('Enter Number of Players (2 ~ 9)')[0]) // 2, 30))
             self.screen.blit(self.font.render(self.pChar, True, (220, 210, 250)),
                              ((SCREEN_W - self.font.size(self.pChar)[0]) // 2,
                               (SCREEN_H - self.font.size(self.pChar)[1]) // 2))
-        if self.stat == 2:
+        if self.stat == 3:
             self.screen.blit(self.font.render(f'Enter Name of Player {self.neStat + 1}', True, (250, 230, 210)),
                              ((SCREEN_W - self.font.size(f'Enter Name of Player {self.neStat + 1}')[0]) // 2, 30))
             self.screen.blit(self.font.render(''.join(self.nameChar), True, (220, 210, 250)),
                              ((SCREEN_W - self.font.size(''.join(self.nameChar))[0]) // 2,
                               (SCREEN_H - self.font.size(''.join(self.nameChar))[1]) // 2))
-        if self.stat == 3:
+        if self.stat == 4:
             self.board.draw(self.screen)
             for player in self.playerList:
                 player.move()
                 player.draw(self.screen, player.pIndex + 1, self.current_player)
 
-        if self.stat == 3:
+        if self.stat == 4:
             self.spin_button_1.draw(self.screen)
             self.spin_button_2.draw(self.screen)
             self.end_turn_button.draw(self.screen)
 
-        if self.stat == 3:
+        if self.stat == 4:
             self.spinner_1.draw(self.screen)
             self.spinner_2.draw(self.screen)
 
-        if self.stat == 3 and self.end_turn_button.doneStat == 1:
+        if self.stat == 4 and self.end_turn_button.doneStat == 1:
             if self.spin_button_1.doneStat == 1 and self.spinner_1.handStat == 0:
                 if self.spin_button_2.doneStat == 1 and self.spinner_2.handStat == 0:
                     self.playerList[self.current_player].moveDir, self.playerList[self.current_player].moveDist = self.spinner_1.dir, self.spinner_2.dist
@@ -718,12 +744,17 @@ class FW_Main(object):
                                                      self.spinner_r, self.spinner_border_color, self.spinner_color, self.spinner_line_color, \
                                                      self.size, integerList, 1, 0)
                     if self.stat == 1:
-                        if self.pChar == '_' or int(self.pChar) > 6:
+                        if self.moneyChar[-1] == '_' or int(''.join(self.moneyChar).strip('_')) > 20000 or int(''.join(self.moneyChar).strip('_')) < 2000:
                             continue
                         self.stat = 2
+                        self.origMoney = int(''.join(self.moneyChar).strip('_'))
+                    if self.stat == 2:
+                        if self.pChar == '_' or int(self.pChar) > 6:
+                            continue
+                        self.stat = 3
                         self.pNum = int(self.pChar)
                         self.current_player = random.randint(0, self.pNum - 1)
-                    if self.stat == 2:
+                    if self.stat == 3:
                         if self.neStat != self.pNum - 1:
                             if self.nameChar[-1] == '_':
                                 continue
@@ -735,9 +766,11 @@ class FW_Main(object):
                                 continue
                             if ''.join(self.nameChar).strip('_') in self.names:
                                 continue
-                            self.stat = 3
+                            self.stat = 4
                             self.names.append(''.join(self.nameChar).strip('_'))
-                        self.playerList.append(CLS_player(self.neStat, self.board.cellNum//2, self.plyColorList[self.neStat], self.plyTransparentColorList[self.neStat], self.plyDieColorList[self.neStat], ' '.join(''.join(self.nameChar).strip('_').split('_')), 1))
+                        self.playerList.append(CLS_player(self.neStat, self.board.cellNum//2, \
+                                                          self.plyColorList[self.neStat], self.plyTransparentColorList[self.neStat], self.plyDieColorList[self.neStat], \
+                                                          ' '.join(''.join(self.nameChar).strip('_').split('_')), 1, 5000))
                         self.nameChar = list('_' * self.nameLen)
                         self.neStat += 1
                 if event.key <= pygame.K_9 and event.key >= pygame.K_3 and self.stat == 0:
@@ -745,24 +778,32 @@ class FW_Main(object):
                         self.sizeChar = str(event.key - ord('1') + 1)
                 if event.key == pygame.K_BACKSPACE and self.stat == 0:
                     self.sizeChar = '_'
-                if event.key <= pygame.K_6 and event.key >= pygame.K_2 and self.stat == 1:
+                if event.key <= pygame.K_9 and event.key >= pygame.K_0 and self.stat == 1:
+                    if event.key == pygame.K_0 and self.moneyChar[-1] == '_':
+                        continue
+                    if self.moneyChar[0] != '_':
+                        continue
+                    self.moneyChar = self.moneyChar[1:] + [str(event.key - ord('0'))]
+                if event.key == pygame.K_BACKSPACE and self.stat == 1:
+                    self.moneyChar = ['_'] + self.moneyChar[:-1]
+                if event.key <= pygame.K_6 and event.key >= pygame.K_2 and self.stat == 2:
                     if self.pChar == '_':
                         self.pChar = str(event.key - ord('1') + 1)
-                if event.key == pygame.K_BACKSPACE and self.stat == 1:
+                if event.key == pygame.K_BACKSPACE and self.stat == 2:
                     self.pChar = '_'
-                if (event.key >= ord('0') and event.key <= ord('9') or event.key >= ord('a') and event.key <= ord('z')) and self.stat == 2:
+                if (event.key >= ord('0') and event.key <= ord('9') or event.key >= ord('a') and event.key <= ord('z')) and self.stat == 3:
                     if self.nameChar[0] != '_':
                         continue
                     self.nameChar = self.nameChar[1:] + [chr(event.key)]
-                if event.key == pygame.K_BACKSPACE and self.stat == 2:
+                if event.key == pygame.K_BACKSPACE and self.stat == 3:
                     if self.nameChar == '_' * self.nameLen:
                         continue
                     self.nameChar = ['_'] + self.nameChar[:-1]
-                if event.key == pygame.K_SPACE and self.stat == 2:
+                if event.key == pygame.K_SPACE and self.stat == 3:
                     if self.nameChar[0] != '_':
                         continue
                     self.nameChar = self.nameChar[1:] + ['_']
-            if event.type == pygame.MOUSEBUTTONDOWN and self.stat == 3:
+            if event.type == pygame.MOUSEBUTTONDOWN and self.stat == 4:
                 if self.spin_button_1.doneStat == 0 and self.spin_button_1.pressedStat == 1:
                     self.spin_button_1.doneStat = 1
                     self.spinner_1.handStat = 1
