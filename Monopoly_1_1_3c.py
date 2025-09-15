@@ -223,15 +223,24 @@ class CLS_Cell(object):
         self.orig_color = self.cColor
         self.aim_color = self.cColor
         self.transI = 1
+        self.crtK = 0
 
     def draw(self, scr):
         if main.playerList[main.current_player].cell == self.cIndex:
             if not self.shining:
+                self.crtK = main.current_player
                 self.current_color = self.cColor
                 self.aim_color = main.playerList[main.current_player].nameColor
+                self.orig_color = self.cColor
                 self.transI = 1
                 self.shining = True
         if self.shining:
+            if main.current_player != self.crtK:
+                self.crtK = main.current_player
+                self.current_color = self.cColor
+                self.aim_color = main.playerList[main.current_player].nameColor
+                self.orig_color = self.cColor
+                self.transI = 1
             self.current_color = (self.orig_color[0] + self.transI * (self.aim_color[0] - self.orig_color[0]) // self.colorDiv, \
                                   self.orig_color[1] + self.transI * (self.aim_color[1] - self.orig_color[1]) // self.colorDiv, \
                                   self.orig_color[2] + self.transI * (self.aim_color[2] - self.orig_color[2]) // self.colorDiv)
@@ -243,6 +252,7 @@ class CLS_Cell(object):
         if main.playerList[main.current_player].cell != self.cIndex and self.shining:
             self.shining = False
             self.current_color = self.cColor
+            self.aim_color = self.cColor
             
         if self.stType == 1:
             pygame.draw.polygon(scr, self.current_color, ((self.x, self.y + self.cSize), #Bottom
