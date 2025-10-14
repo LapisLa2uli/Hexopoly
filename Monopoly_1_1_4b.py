@@ -83,7 +83,7 @@ class CLS_player(object):
         self.moveDiv = 30
         self.moveList = []
         self.textW = 20
-        self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\GlacialIndifference-Regular.otf'), self.textW)
+        self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Fonts\\GlacialIndifference-Regular.otf'), self.textW)
 
     def move(self):
         if self.moveDist != 0:
@@ -229,8 +229,8 @@ class CLS_Cell(object):
         self.cSize = cSize
         self.cellType = cellType
         self.name, self.price, self.cColor, self.bColor = name, price, cColor, bColor
-        self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\GlacialIndifference-Regular.otf'), self.cSize * 3 // 11)
-        self.font2 = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\GlacialIndifference-Regular.otf'), self.cSize // 3)
+        self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Fonts\\GlacialIndifference-Regular.otf'), self.cSize * 3 // 11)
+        self.font2 = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Fonts\\GlacialIndifference-Regular.otf'), self.cSize // 3)
         self.tColor = tColor
         self.stType = stType
         self.img = img
@@ -512,7 +512,7 @@ class CLS_Spinner(object):
         self.divisions = divisions
         self.tList = tList
         self.spinnerId = spinnerId
-        self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\GlacialIndifference-Regular.otf'), self.size // 4)
+        self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Fonts\\GlacialIndifference-Regular.otf'), self.size // 4)
 
         self.handStat = 0
         self.handAngle = 0
@@ -630,7 +630,7 @@ class FW_Main(object):
 
         pygame.init()
         
-        self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\GlacialIndifference-Regular.otf'), 50)
+        self.font = pygame.font.Font(os.path.relpath('..\\'*fileFlag+'Data\\Fonts\\GlacialIndifference-Regular.otf'), 50)
         self.screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
         self.clock = pygame.time.Clock()
 
