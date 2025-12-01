@@ -1,6 +1,6 @@
 # **Hexopoly**
 
-Hexopoly is a game inspired by Monopoly, increasing in volatility and possibilities!
+Hexopoly is a game inspired by Monopoly, increasing in versatility and possibilities!
 
 ## Idea
 
