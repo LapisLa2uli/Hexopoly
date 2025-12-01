@@ -1,5 +1,11 @@
 # **Change log**
 
+**Dec 1, 2025**
+
+- Added initialization of resources
+
+- Fixed file organization issues
+
 **Sep 15, 2025**
 
 - Added animation to movement of avatars
