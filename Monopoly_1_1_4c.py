@@ -50,7 +50,12 @@ SCREEN_W, SCREEN_H = 1500, 900
 fileFlag = False
 if os.getcwd()[len(os.getcwd())-os.getcwd().index('\\')+2:]=='OldVersions':
     fileFlag = True
-
+    sys.path.append('..')
+print(sys.path)
+print(os.path.abspath(os.curdir))
+from Utils.pull_data import load_directory_files
+FileDict=load_directory_files(os.path.relpath('..\\'*fileFlag+'Data'))
+print(FileDict)
 class CLS_player(object):
     '''                 /\
                      /      \
@@ -345,39 +350,30 @@ class CLS_Board(object):
                 cCell += 1
             self.cellOrganization.append(cellLine)
 
-        self.elec_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\elec_company.png'))
-        self.elec_pic = pygame.transform.scale(self.elec_pic, (self.cSize, self.cSize))
+        self.elec_pic = pygame.transform.scale(FileDict['elec_company.png'], (self.cSize, self.cSize))
         self.elec_pic.set_colorkey((255, 255, 255))
-        self.water_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\water_company.png'))
-        self.water_pic = pygame.transform.scale(self.water_pic, (self.cSize, self.cSize))
+        self.water_pic = pygame.transform.scale(FileDict['water_company.png'], (self.cSize, self.cSize))
         self.water_pic.set_colorkey((255, 255, 255))
-        self.oil_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\oil_company.png'))
-        self.oil_pic = pygame.transform.scale(self.oil_pic, (self.cSize, self.cSize * 3 // 4))
+        self.oil_pic = pygame.transform.scale(FileDict['oil_company.png'], (self.cSize, self.cSize * 3 // 4))
         self.oil_pic.set_colorkey((255, 255, 255))
-        self.jail_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\jail_pic.png'))
-        self.jail_pic = pygame.transform.scale(self.jail_pic, (self.cSize, self.cSize * 4 // 3))
+        self.jail_pic = pygame.transform.scale(FileDict['jail_pic.png'], (self.cSize, self.cSize * 4 // 3))
         self.jail_pic.set_colorkey((255, 255, 255))
-        self.auschwitz_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\auschwitz_pic.png'))
-        self.auschwitz_pic = pygame.transform.scale(self.auschwitz_pic, (self.cSize, self.cSize * 5 // 4))
+        self.auschwitz_pic = pygame.transform.scale(FileDict['auschwitz_pic.png'], (self.cSize, self.cSize * 5 // 4))
         self.auschwitz_pic.set_colorkey((255, 255, 255))
-        self.casino_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\casino_pic.png'))
-        self.casino_pic = pygame.transform.scale(self.casino_pic, (self.cSize * 7 // 5, self.cSize * 7 // 5))
+        self.casino_pic = pygame.transform.scale(FileDict['casino_pic.png'], (self.cSize * 7 // 5, self.cSize * 7 // 5))
         self.casino_pic.set_colorkey((255, 255, 255))
-        self.treasure_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\treasure_pic.png'))
-        self.treasure_pic = pygame.transform.scale(self.treasure_pic, (self.cSize, self.cSize * 4 // 3))
+        self.treasure_pic = pygame.transform.scale(FileDict['treasure_pic.png'], (self.cSize, self.cSize * 4 // 3))
         self.treasure_pic.set_colorkey((255, 255, 255))
-        self.surprise_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\surprise_pic.png'))
-        self.surprise_pic = pygame.transform.scale(self.surprise_pic, (self.cSize, self.cSize * 4 // 3))
+        self.surprise_pic = pygame.transform.scale(FileDict['surprise_pic.png'], (self.cSize, self.cSize * 4 // 3))
         self.surprise_pic.set_colorkey((255, 255, 255))
-        self.punishment_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\punishment_pic.png'))
-        self.punishment_pic = pygame.transform.scale(self.punishment_pic, (self.cSize, self.cSize * 4 // 3))
+        self.punishment_pic = pygame.transform.scale(FileDict['punishment_pic.png'], (self.cSize, self.cSize * 4 // 3))
         self.punishment_pic.set_colorkey((255, 255, 255))
 
         self.flags = []
         for i in range(28):
             row = []
             for j in range(7):
-                flag = pygame.image.load(os.path.relpath('..\\'*fileFlag+f'Data\\country_flags\\{i}{chr(j + 97)}.jpg'))
+                flag = FileDict[f'{i}{chr(j + 97)}.jpg']
                 flag = pygame.transform.scale(flag, (self.cSize * 4 // 5, self.cSize // 2))
                 if countries[i][j] == 'Nepal':
                     flag.set_colorkey((255, 255, 255))
@@ -603,25 +599,19 @@ class FW_Main(object):
         self.plyColorList = [(255, 0, 0), (255, 128, 0), (255, 255, 0), (0, 255, 0), (0, 0, 255), (200, 0, 255)]
         self.plyDieColorList = [(128, 0, 0), (128, 64, 0), (128, 128, 0), (0, 128, 0), (0, 0, 128), (100, 0, 128)]
         # Initialization of countries
-        cFile = open(os.path.relpath('..\\'*fileFlag+"Data\\Resources\\countries.txt"), 'r')
-        cList = cFile.readlines()
-        cFile.close()
+        cList = FileDict['countries.txt'].split('\n')
         self.countries = []
         for group in cList:
             self.countries.append(group.strip().split(', '))
 
         # Initialization of prices
-        pFile = open(os.path.relpath('..\\'*fileFlag+"Data\\Resources\\prices.txt"), 'r')
-        pList = pFile.readlines()
-        pFile.close()
+        pList = FileDict['prices.txt'].split('\n')
         self.prices = []
         for price in pList:
             self.prices.append(list(map(int, price.strip().split(', '))))
 
         # Initialization of colors
-        rFile = open(os.path.relpath('..\\'*fileFlag+"Data\\Resources\\colors.txt"), 'r')
-        rList = rFile.readlines()
-        rFile.close()
+        rList = FileDict['colors.txt'].split('\n')
         self.colors = []
         for color in rList:
             nC = color[:-1]
@@ -640,17 +630,13 @@ class FW_Main(object):
         self.spinner_border_color, self.spinner_color, self.spinner_line_color = (81, 44, 102), (214, 189, 222), (124, 59, 144)
         self.spinner_hand_w, self.spinner_hand_h = 12, 114
 
-        self.spin_button_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\spin_button_2.png'))
-        self.spin_button_pic = pygame.transform.scale(self.spin_button_pic, (self.spin_button_w, self.spin_button_h))
+        self.spin_button_pic = pygame.transform.scale(FileDict['spin_button_2.png'], (self.spin_button_w, self.spin_button_h))
         self.spin_button_pic.set_colorkey((255, 255, 255))
-        self.spin_button_pressed_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\spin_button_1.png'))
-        self.spin_button_pressed_pic = pygame.transform.scale(self.spin_button_pressed_pic, (self.spin_button_w, self.spin_button_h))
+        self.spin_button_pressed_pic = pygame.transform.scale(FileDict['spin_button_1.png'], (self.spin_button_w, self.spin_button_h))
         self.spin_button_pressed_pic.set_colorkey((255, 255, 255))
-        self.end_turn_button_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\end_turn_button_2.png'))
-        self.end_turn_button_pic = pygame.transform.scale(self.end_turn_button_pic, (self.end_turn_button_w, self.end_turn_button_h))
+        self.end_turn_button_pic = pygame.transform.scale(FileDict['end_turn_button_2.png'], (self.end_turn_button_w, self.end_turn_button_h))
         self.end_turn_button_pic.set_colorkey((255, 255, 255))
-        self.end_turn_button_pressed_pic = pygame.image.load(os.path.relpath('..\\'*fileFlag+'Data\\Resources\\end_turn_button_1.png'))
-        self.end_turn_button_pressed_pic = pygame.transform.scale(self.end_turn_button_pressed_pic, (self.end_turn_button_w, self.end_turn_button_h))
+        self.end_turn_button_pressed_pic = pygame.transform.scale(FileDict['end_turn_button_1.png'], (self.end_turn_button_w, self.end_turn_button_h))
         self.end_turn_button_pressed_pic.set_colorkey((255, 255, 255))
         
         self.spin_button_1 = CLS_Button(self.spin_button_pic, self.spin_button_pressed_pic, \
